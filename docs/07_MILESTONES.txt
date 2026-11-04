@@ -1,0 +1,191 @@
+==========================================================
+07 - MILESTONES (BUILD PLAN + READY-TO-PASTE PROMPTS)
+==========================================================
+
+HOW TO USE
+1. Start one milestone and attach the referenced documents.
+2. Ask the coding assistant to build ONLY that milestone.
+3. Run the app and complete its checklist.
+4. If it passes, commit to Git before moving on.
+5. If it fails, fix only that milestone before continuing.
+
+Golden prompt:
+"Build only the milestone below. Read the attached project documents.
+Follow 00_PROJECT_OVERVIEW rules and the API/schema contracts. Keep the
+code beginner-friendly. When done, stop and list files created, commands
+to run and tests performed. Do not start the next milestone."
+
+Suggested commit: one commit per completed milestone.
+
+----------------------------------------------------------
+M0 - PROJECT SETUP (docs: 00)
+----------------------------------------------------------
+Create backend FastAPI skeleton with /health, config, SQLite session,
+CORS, requirements.txt and .env.example. Create React/Vite frontend
+with Tailwind, React Router and Axios client.
+Checklist:
+[ ] backend starts and /health returns {"status":"ok"}
+[ ] /docs opens
+[ ] frontend runs at localhost:5173
+[ ] frontend can call /health without CORS error
+[ ] .env is ignored by Git
+
+----------------------------------------------------------
+M1 - AUTH (docs: 00, 04-A, 05, 08)
+----------------------------------------------------------
+Implement users table, register/login/me, JWT and password hashing.
+Frontend: Signup, Login, AuthContext, ProtectedRoute.
+Checklist:
+[ ] register/login work
+[ ] duplicate email gives 409
+[ ] wrong password gives 401
+[ ] protected routes require login
+[ ] passwords never appear in API responses
+
+----------------------------------------------------------
+M2 - PREFERENCES + ONBOARDING (docs: 02, 04-B, 08)
+----------------------------------------------------------
+Implement preferences table and GET/PUT /preferences.
+Frontend: onboarding styles, colours and city; profile edit.
+Checklist:
+[ ] onboarding appears once
+[ ] skip works
+[ ] preferences persist after re-login
+[ ] profile edit works
+
+----------------------------------------------------------
+M3 - WARDROBE BACKEND + IMAGES (docs: 03, 04-C, 05, 08)
+----------------------------------------------------------
+Implement clothing_items, image validation/storage and wardrobe CRUD,
+filters, pagination and worn endpoint. Add pytest tests and seed script.
+Checklist:
+[ ] create/list/get/update/delete work
+[ ] user B cannot access user A's item
+[ ] invalid file type and >5 MB rejected
+[ ] image is deleted when item is deleted
+[ ] seed script creates demo user and ~25 items
+
+----------------------------------------------------------
+M4 - WARDROBE FRONTEND (docs: 02-S5/S6/S7, 04-C)
+----------------------------------------------------------
+Build wardrobe grid, search, filters, add/edit form, image preview,
+item detail and delete confirmation. Desktop-first, responsive mobile.
+Checklist:
+[ ] add/edit/delete work from UI
+[ ] filters and search update grid
+[ ] loading/empty/error states work
+[ ] desktop and mobile layouts are usable
+
+----------------------------------------------------------
+M5 - WEATHER (docs: 03-M5, 04-D, 05)
+----------------------------------------------------------
+Build Open-Meteo geocoding/current-weather service and GET /weather.
+Add WeatherCard to Dashboard and weather preview to AI Stylist.
+Checklist:
+[ ] saved city weather appears
+[ ] unknown city gives clear error
+[ ] provider failure has safe fallback/error state
+[ ] no false claim that fallback is live weather
+
+----------------------------------------------------------
+M6 - GEMINI SERVICE + OUTFIT API (docs: 04-E, 05, 06, 08)
+----------------------------------------------------------
+Implement Gemini integration using official Google Gen AI SDK.
+Build context from current user's SQLite wardrobe and preferences.
+Use structured JSON output. Validate all returned item IDs, ownership,
+anchor item, category structure, count and occasion. Save validated
+outfits and return trusted item records.
+Mock Gemini in pytest; do not require a live API key for tests.
+Checklist:
+[ ] valid Gemini response produces outfit results
+[ ] only supplied item IDs are accepted
+[ ] unknown/foreign IDs are rejected
+[ ] anchor item is respected
+[ ] insufficient wardrobe gives useful error
+[ ] API key is backend-only
+[ ] timeout/invalid response handled safely
+
+----------------------------------------------------------
+M7 - AI STYLIST + OUTFIT UI (docs: 02-S8/S9/S10, 04-E, 06)
+----------------------------------------------------------
+Build occasion selection, weather preview, optional style and anchor
+item, loading skeletons, outfit cards, item collage and explanations.
+Like/Dislike/Save/Worn may be disabled until M8.
+Checklist:
+[ ] Home -> AI Stylist -> results flow works
+[ ] cards use real wardrobe images
+[ ] empty wardrobe state works
+[ ] Try Again excludes previous outfit IDs
+[ ] no invented clothing appears
+
+----------------------------------------------------------
+M8 - FEEDBACK + SAVED OUTFITS (docs: 03-M7, 04-E, 05, 08)
+----------------------------------------------------------
+Implement feedback endpoints and saved/liked/history views. Include a
+compact recent feedback summary in later Gemini prompts.
+Checklist:
+[ ] like/dislike mutually exclusive
+[ ] save/unsave works
+[ ] worn updates each outfit item's times_worn
+[ ] saved/liked/history lists are correct
+[ ] feedback summary does not override explicit request
+
+----------------------------------------------------------
+M9 - INSIGHTS + DASHBOARD (docs: 02-S4/S14, 04-F, 08)
+----------------------------------------------------------
+Implement insights endpoint and finish dashboard with greeting, weather,
+recent recommendations, wardrobe stats and quick actions.
+Checklist:
+[ ] totals match database
+[ ] most-worn and never-worn lists are correct
+[ ] dashboard empty states work
+
+----------------------------------------------------------
+M10 - PLANNER + PROFILE + POLISH (docs: 02-S11/S13, 05)
+----------------------------------------------------------
+Implement basic outfit planner if time permits, profile/settings,
+accessibility, global error handling and 404.
+Do not add virtual try-on.
+Checklist:
+[ ] profile changes persist
+[ ] planner entries work if included
+[ ] forms have labels and visible focus
+[ ] no unhandled browser errors
+
+----------------------------------------------------------
+M11 - TESTING, DEMO DATA AND DOCUMENTATION (docs: 05, 06, 08)
+----------------------------------------------------------
+Run full pytest suite. Finalise seed script, README and manual TESTING.md.
+Checklist:
+[ ] fresh setup instructions work
+[ ] pytest passes
+[ ] demo user and wardrobe work
+[ ] Gemini tests use mocks
+[ ] no secrets committed
+
+----------------------------------------------------------
+M12 - PRESENTATION PREPARATION (NO CODING)
+----------------------------------------------------------
+[ ] architecture diagram
+[ ] ER diagram and use-case diagram
+[ ] explain how Gemini receives JSON and returns structured suggestions
+[ ] explain backend validation and database responsibilities
+[ ] demo script and limitations/future scope
+[ ] 2-3 minute screen recording backup
+
+----------------------------------------------------------
+OPTIONAL FUTURE WORK
+----------------------------------------------------------
+- Gemini image-based clothing attribute extraction with user confirmation.
+- Virtual try-on using a dedicated image-generation/try-on service.
+- PostgreSQL migration and cloud deployment.
+- Dark mode.
+- Advanced recommendation evaluation and analytics.
+
+TROUBLESHOOTING
+- AI skipped ahead: "Stop. Only milestone Mx. Remove work outside it."
+- API fields changed: "Follow 04_API.txt and 08_SCHEMA.txt exactly."
+- Gemini invented IDs: fix backend validation; do not trust model output.
+- Bug: paste full error and relevant file; ask for cause and minimal fix.
+- Context long: start a new chat, attach 00 and relevant docs, state
+  completed milestones and latest Git commit.

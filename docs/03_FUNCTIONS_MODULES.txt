@@ -1,0 +1,155 @@
+==========================================================
+03 - FUNCTIONS & MODULES
+==========================================================
+
+Build modules in the order defined in 07_MILESTONES.txt.
+
+----------------------------------------------------------
+MODULE 1: AUTHENTICATION
+----------------------------------------------------------
+Backend:
+  register_user(name, email, password)
+  login_user(email, password)
+  hash_password(plain), verify_password(plain, hashed)
+  create_access_token(user_id, expires_minutes)
+  get_current_user(token)
+  change_password(user_id, old_password, new_password)
+  delete_account(user_id)
+
+Frontend:
+  AuthContext, LoginPage, SignupPage, ProtectedRoute.
+
+----------------------------------------------------------
+MODULE 2: PREFERENCES / ONBOARDING
+----------------------------------------------------------
+Backend:
+  save_preferences(user_id, data)
+  get_preferences(user_id)
+
+Frontend:
+  OnboardingPage, ProfilePage, StyleSelector, ColorSwatchPicker.
+
+----------------------------------------------------------
+MODULE 3: DIGITAL WARDROBE
+----------------------------------------------------------
+Backend:
+  add_item(user_id, data, image)
+  list_items(user_id, filters, page, limit)
+  get_item(user_id, item_id)
+  update_item(user_id, item_id, data, image)
+  delete_item(user_id, item_id)
+  mark_item_worn(user_id, item_id)
+
+Frontend:
+  WardrobePage, AddEditItemForm, ItemDetailPage, ClothingCard, FilterBar.
+
+Item vocabulary and allowed values are defined in 08_SCHEMA.txt.
+
+----------------------------------------------------------
+MODULE 4: IMAGE HANDLING
+----------------------------------------------------------
+Backend:
+  validate_image(file)       -> jpg/png/webp, maximum 5 MB
+  save_image(file, user_id)  -> random UUID filename and relative path
+  delete_image(path)
+  create_image_url(path)
+
+Frontend:
+  image preview and optional client-side compression.
+The backend must validate files even if the frontend already validates.
+
+----------------------------------------------------------
+MODULE 5: WEATHER
+----------------------------------------------------------
+Backend:
+  geocode_city(city_name)
+  get_current_weather(lat, lon)
+  classify_weather(weather)
+  get_weather_for_city(city_name)
+Use Open-Meteo. Cache results per city for 30 minutes.
+
+Frontend:
+  WeatherCard and useWeather hook.
+
+Weather classes:
+  hot >= 30C
+  warm 22-29.9C
+  mild 15-21.9C
+  cool 8-14.9C
+  cold < 8C
+Weather classification thresholds are application rules, not medical advice.
+
+----------------------------------------------------------
+MODULE 6: GEMINI OUTFIT RECOMMENDATION
+----------------------------------------------------------
+Backend files:
+  services/gemini_service.py
+  services/outfit_service.py
+  routers/outfits.py
+
+Functions:
+  build_gemini_context(user, items, preferences, weather, request)
+  build_gemini_prompt(context)
+  call_gemini(context)
+  parse_gemini_response(response)
+  validate_recommendations(user_id, recommendations, allowed_items)
+  generate_outfits(user_id, request)
+
+Responsibilities:
+- Fetch wardrobe items from SQLite for the authenticated user.
+- Send compact JSON context to Gemini from the backend only.
+- Ask Gemini to return structured JSON with item IDs from the supplied list.
+- Validate JSON shape, count, occasion, item IDs and ownership.
+- Reject unknown IDs and any item not in the current user's wardrobe.
+- Save valid recommendations and return full item objects to the frontend.
+- Handle API timeout, rate limit, invalid response and unavailable service.
+
+Gemini is used for reasoning and selecting combinations. SQLite remains
+the persistent store. Gemini does not save user records.
+
+Detailed prompt and response schema: 06_GEMINI_INTEGRATION.txt.
+
+----------------------------------------------------------
+MODULE 7: FEEDBACK / SAVED OUTFITS
+----------------------------------------------------------
+Backend:
+  save_feedback(user_id, outfit_id, action)
+  get_saved_outfits(user_id, type)
+  get_history(user_id)
+  build_feedback_context(user_id, limit)
+
+Actions:
+  like, dislike, save, unsave, worn
+
+Recent feedback can be summarised and supplied as preference context
+to Gemini. This is prompt-based personalisation, not model fine-tuning.
+
+----------------------------------------------------------
+MODULE 8: INSIGHTS
+----------------------------------------------------------
+Backend:
+  wardrobe_summary(user_id)
+  most_worn(user_id, count)
+  never_worn(user_id)
+  saved_outfit_count(user_id)
+
+Frontend:
+  InsightsPage with simple charts.
+
+----------------------------------------------------------
+MODULE 9: SHARED INFRASTRUCTURE
+----------------------------------------------------------
+Backend:
+  config.py, database.py, error handlers, CORS, logging,
+  JWT security, image storage and API client configuration.
+
+Frontend:
+  Axios client with auth header and 401 handler, layout components,
+  toast system, reusable form controls.
+
+----------------------------------------------------------
+DEPENDENCY ORDER
+----------------------------------------------------------
+Infrastructure -> Auth -> Preferences -> Wardrobe + Images ->
+Weather -> Gemini integration -> Outfit UI -> Feedback ->
+Insights -> Final security and testing.

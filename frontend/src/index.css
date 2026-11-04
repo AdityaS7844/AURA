@@ -1,0 +1,30 @@
+@import "tailwindcss";
+
+@theme {
+  --color-aura-primary: #4B2E9E;
+  --color-aura-accent: #7355CF;
+  --color-aura-lavender: #EAE3FF;
+  --color-aura-page: #F7F5FC;
+  --color-aura-surface: #FFFFFF;
+  --color-aura-text: #211B2D;
+  --color-aura-muted: #777184;
+  --color-aura-border: #EAE7EF;
+  --color-aura-success: #278653;
+  --color-aura-error: #D64550;
+  --color-aura-warning: #B7791F;
+
+  --font-heading: 'Outfit', sans-serif;
+  --font-body: 'Inter', sans-serif;
+}
+
+body {
+  font-family: var(--font-body);
+  background-color: var(--color-aura-page);
+  color: var(--color-aura-text);
+  min-height: 100vh;
+  margin: 0;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-heading);
+}

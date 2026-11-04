@@ -1,0 +1,215 @@
+==========================================================
+06 - GEMINI INTEGRATION: OUTFIT RECOMMENDATION
+==========================================================
+
+This document defines how AURA uses Gemini. It replaces the previous
+custom Python scoring-engine specification.
+
+----------------------------------------------------------
+1. PURPOSE AND RESPONSIBILITY
+----------------------------------------------------------
+Gemini receives a limited JSON description of the current user's
+wardrobe, preferences, occasion and weather. It recommends combinations
+using only the clothing IDs included in that request.
+
+SQLite remains the permanent database.
+FastAPI controls access, calls Gemini and validates the response.
+React displays only the validated API response.
+
+Gemini must not:
+- save permanent user records;
+- access SQLite directly;
+- invent clothing items or image URLs;
+- recommend IDs not included in the request;
+- receive passwords, JWTs, API keys or unnecessary personal data.
+
+----------------------------------------------------------
+2. INPUT CONTEXT EXAMPLE
+----------------------------------------------------------
+{
+  "request": {
+    "occasion": "casual",
+    "style": "streetwear",
+    "weather": {
+      "city": "Pune",
+      "temp_c": 27,
+      "class": "warm",
+      "condition": "Partly cloudy",
+      "is_rainy": false
+    },
+    "count": 3,
+    "anchor_item_id": null
+  },
+  "preferences": {
+    "styles": ["casual", "streetwear"],
+    "favorite_colors": ["#4B2E9E", "#FFFFFF"],
+    "avoid_colors": ["#FF0000"]
+  },
+  "wardrobe": [
+    {
+      "id": 11,
+      "name": "Purple Oversized Shirt",
+      "category": "top",
+      "sub_type": "shirt",
+      "color_name": "purple",
+      "color_hex": "#7355CF",
+      "pattern": "solid",
+      "season": "all",
+      "formality": 2,
+      "warmth": 2,
+      "occasions": ["casual", "travel"]
+    },
+    {
+      "id": 12,
+      "name": "Black Jeans",
+      "category": "bottom",
+      "sub_type": "jeans",
+      "color_name": "black",
+      "color_hex": "#202020",
+      "pattern": "solid",
+      "season": "all",
+      "formality": 2,
+      "warmth": 2,
+      "occasions": ["casual", "travel"]
+    },
+    {
+      "id": 13,
+      "name": "White Sneakers",
+      "category": "footwear",
+      "sub_type": "sneakers",
+      "color_name": "white",
+      "color_hex": "#FFFFFF",
+      "pattern": "solid",
+      "season": "all",
+      "formality": 2,
+      "warmth": 2,
+      "occasions": ["casual", "travel"]
+    }
+  ],
+  "feedback_context": {
+    "liked_styles": ["casual"],
+    "disliked_colors": [],
+    "note": "Use as a soft preference, not a strict rule."
+  }
+}
+
+The example is illustrative. The backend must build this context from
+the authenticated user's actual database records.
+
+----------------------------------------------------------
+3. GEMINI INSTRUCTION / PROMPT
+----------------------------------------------------------
+System instruction:
+"You are AURA, a careful personal wardrobe stylist. Recommend outfits
+using ONLY the clothing items provided in the current request. Do not
+invent clothing, IDs, brands, image URLs or accessories. Respect the
+occasion, weather, style preferences and anchor item. Prefer practical,
+wearable combinations. Return only data matching the required JSON
+schema. If there are not enough suitable items, return fewer outfits
+and explain the limitation."
+
+User prompt should include:
+- request occasion, style, weather and requested count;
+- user's relevant style/colour preferences;
+- the available wardrobe items and their IDs;
+- optional anchor item ID;
+- IDs to exclude for "Try again";
+- compact feedback summary if available.
+
+Do not send full database rows or private account details.
+
+----------------------------------------------------------
+4. REQUIRED STRUCTURED RESPONSE
+----------------------------------------------------------
+Use Gemini structured output / JSON schema support where available.
+The logical response shape is:
+
+{
+  "recommendations": [
+    {
+      "name": "Casual Purple Look",
+      "item_ids": [11, 12, 13],
+      "reason": "The purple top and black jeans create a balanced
+                 casual look, while sneakers keep it comfortable.",
+      "style": "casual",
+      "occasion": "casual",
+      "match_score": 87
+    }
+  ],
+  "message": "Three outfit ideas based on your wardrobe."
+}
+
+Rules:
+- recommendations is an array.
+- item_ids contains integer IDs from the supplied wardrobe only.
+- Each outfit uses either top + bottom, or a dress, and may include
+  footwear, outerwear and accessories where suitable.
+- Avoid duplicate item IDs inside one outfit.
+- Do not repeat the exact same combination.
+- anchor_item_id, when provided, must be in every recommendation.
+- match_score is an approximate AI-generated match indicator from 0-100,
+  not an objective scientific measurement.
+- reason must be a short readable explanation.
+- occasion must match the requested occasion.
+- If there are insufficient suitable items, return fewer recommendations
+  and a useful message.
+
+----------------------------------------------------------
+5. BACKEND VALIDATION (MANDATORY)
+----------------------------------------------------------
+After receiving Gemini output:
+1. Parse JSON and validate the schema with Pydantic.
+2. Check requested maximum count.
+3. Check every item ID exists in the current user's supplied wardrobe.
+4. Check no item ID is duplicated within an outfit.
+5. Check anchor item is included when requested.
+6. Check category structure: top+bottom or dress; footwear optional.
+7. Check occasion and weather constraints using simple backend rules.
+8. Reject malformed or unsafe output.
+9. Fetch full item records and image URLs from SQLite.
+10. Save only validated recommendations to outfits and outfit_items.
+11. Return the contract from 04_API.txt.
+
+Never trust an item name, image URL, owner ID or database ID invented
+by Gemini. Use IDs to look up the trusted database records.
+
+----------------------------------------------------------
+6. FAILURE HANDLING
+----------------------------------------------------------
+- No suitable wardrobe: return 400 with a helpful message.
+- Gemini timeout/rate limit: return 503 with retry guidance.
+- Invalid JSON: retry once; if still invalid, return 503.
+- Unknown item IDs: reject output; optionally retry once with stricter
+  instruction; never return unvalidated outfit.
+- Gemini API key missing: fail startup/config validation or return a
+  clear server configuration error; never expose the key.
+- Log request ID and safe error category, not secrets or full private data.
+
+----------------------------------------------------------
+7. FEEDBACK CONTEXT
+----------------------------------------------------------
+Store likes, dislikes, saves and worn events in SQLite.
+Before a later recommendation request, summarise recent feedback:
+- frequently liked styles or colour families;
+- disliked combinations;
+- saved outfit patterns.
+
+Send this summary as a soft preference. It should not override explicit
+user selections or occasion/weather safety rules.
+
+This is prompt-based personalisation. It is not fine-tuning and does not
+change Gemini's underlying model weights.
+
+----------------------------------------------------------
+8. TEST CASES
+----------------------------------------------------------
+- valid response with known item IDs is accepted.
+- unknown ID is rejected.
+- ID belonging to another user is rejected.
+- duplicate IDs in an outfit are rejected.
+- anchor item is required in every outfit.
+- no top/bottom or dress returns a helpful error.
+- too many recommendations are rejected or safely truncated.
+- malformed JSON is handled.
+- timeout/rate limit returns a safe error.
+- frontend receives trusted image URLs from database records only.

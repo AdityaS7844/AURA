@@ -1,0 +1,181 @@
+==========================================================
+00 - PROJECT OVERVIEW (attach this file first)
+==========================================================
+
+PROJECT NAME : AURA - AI Personalised Wardrobe
+TYPE         : College project
+PRODUCT      : Desktop-first responsive web application
+
+----------------------------------------------------------
+1. ONE-LINE DESCRIPTION
+----------------------------------------------------------
+AURA is a web application where users save their clothing items in a
+digital wardrobe and receive personalised outfit recommendations from
+the Gemini API based on their actual clothes, style preferences,
+occasion and weather.
+
+----------------------------------------------------------
+2. PROBLEM WE SOLVE
+----------------------------------------------------------
+- People spend time deciding what to wear.
+- People forget clothes they already own.
+- People repeatedly wear the same combinations.
+- People may buy unnecessary clothes because they do not know how to
+  reuse or combine their existing wardrobe.
+
+----------------------------------------------------------
+3. OBJECTIVES
+----------------------------------------------------------
+1. Organise clothes in a searchable digital wardrobe.
+2. Recommend outfits using only clothes owned by the user.
+3. Consider occasion, weather and personal style.
+4. Explain why an outfit is recommended.
+5. Let users like, dislike, save and mark outfits as worn.
+6. Encourage reuse of existing clothes and reduce unnecessary shopping.
+
+----------------------------------------------------------
+4. VERSION 1 - IN SCOPE
+----------------------------------------------------------
+- Register, login and logout.
+- User profile and style preferences.
+- Add clothes with an optional photograph and manual details.
+- Browse, search, filter, edit and delete wardrobe items.
+- Fetch current weather for the user's saved city.
+- Select an occasion and request multiple outfit recommendations.
+- Use Gemini API to select compatible items from the user's wardrobe.
+- Validate every recommended item ID on the backend.
+- Display outfit cards with item photographs and explanations.
+- Like, dislike, save and mark outfits as worn.
+- View saved outfits, recommendation history and basic wardrobe insights.
+
+----------------------------------------------------------
+5. OUT OF SCOPE FOR VERSION 1
+----------------------------------------------------------
+- Virtual try-on / AR.
+- Training a custom machine-learning model.
+- Automatic clothing recognition from photographs.
+- Shopping / e-commerce integration.
+- Fashion trend prediction.
+These may be future enhancements. Gemini image-based clothing
+recognition can be evaluated later, after the core application works.
+
+----------------------------------------------------------
+6. FINAL TECHNOLOGY STACK
+----------------------------------------------------------
+Frontend : React + Vite + Tailwind CSS + React Router + Axios
+UI       : Lucide React + Framer Motion
+Backend  : Python 3.11+ + FastAPI
+Database : SQLite using SQLAlchemy ORM
+AI       : Google Gemini API (called only from the backend)
+Weather  : Open-Meteo API (no API key required)
+Images   : Local uploads folder; image paths stored in SQLite
+Testing  : pytest (backend), manual checklist (frontend)
+Version control: Git + GitHub
+
+IMPORTANT ARCHITECTURE DECISIONS
+- SQLite is the source of truth for users, clothing and saved outfits.
+- Gemini is an external AI service. It does NOT permanently store user
+  wardrobe records.
+- The backend retrieves a user's wardrobe from SQLite, sends only the
+  necessary structured data to Gemini, validates the response, and
+  returns a safe response to React.
+- Never call Gemini directly from the React browser.
+- Never expose GEMINI_API_KEY in frontend code or Git.
+- Gemini may recommend only item IDs supplied in the current request.
+- The backend must reject unknown IDs, duplicate IDs, items belonging
+  to another user, and invalid outfit combinations.
+- If Gemini is unavailable or returns invalid output, show a useful
+  error and allow retry. Do not silently invent recommendations.
+
+----------------------------------------------------------
+7. HIGH-LEVEL ARCHITECTURE
+----------------------------------------------------------
+React frontend
+    |
+    | HTTPS/JSON + JWT
+    v
+FastAPI backend
+    |                  |
+    |                  +---- Open-Meteo weather service
+    |
+    +---- SQLite database (users, preferences, clothing, outfits)
+    |
+    +---- Gemini service
+              |
+              +---- Structured JSON recommendations
+    |
+    v
+Backend validation and response
+    |
+    v
+React outfit cards
+
+----------------------------------------------------------
+8. FOLDER STRUCTURE
+----------------------------------------------------------
+aura-wardrobe/
+  docs/
+  backend/
+    app/
+      main.py
+      config.py
+      database.py
+      models/
+      schemas/
+      routers/
+      services/
+        gemini_service.py
+        wardrobe_service.py
+        weather_service.py
+        feedback_service.py
+      utils/
+        security.py
+        image_utils.py
+    uploads/
+    tests/
+    scripts/
+      seed.py
+    requirements.txt
+    .env.example
+  frontend/
+    src/
+      pages/
+      components/
+      api/
+      context/
+      hooks/
+      utils/
+    package.json
+
+----------------------------------------------------------
+9. HOW TO USE THESE DOCUMENTS
+----------------------------------------------------------
+00_PROJECT_OVERVIEW.txt : project rules and architecture
+01_USE_CASES_USERS.txt  : actors, user stories and user flows
+02_UI_UX.txt            : design system and screens
+03_FUNCTIONS_MODULES.txt: backend/frontend module responsibilities
+04_API.txt              : API request and response contracts
+05_BACKEND.txt          : backend setup, security and implementation
+06_GEMINI_INTEGRATION.txt: Gemini prompt, JSON schema and validation
+07_MILESTONES.txt       : step-by-step implementation plan
+08_SCHEMA.txt           : database fields and validation values
+
+----------------------------------------------------------
+10. RULES FOR AI CODING ASSISTANTS
+----------------------------------------------------------
+R1. Work on ONE milestone at a time. Never jump ahead.
+R2. Read 00 and all documents referenced by the milestone before coding.
+R3. After a milestone, stop and list files created, run commands and tests.
+R4. Do not change the stack, folder structure or API contract without
+    asking the project owner.
+R5. Keep code beginner-friendly, readable and commented.
+R6. Follow 04_API.txt and 08_SCHEMA.txt exactly.
+R7. Never hardcode secrets. Read them from backend .env configuration.
+R8. Never expose API keys, passwords, JWT secrets or private user data.
+R9. Gemini output is untrusted input. Validate it on the backend.
+R10. Do not let Gemini create, update or delete database records directly.
+R11. Do not recommend clothing that is not in the current user's wardrobe.
+R12. Each milestone must run and pass its tests before the next begins.
+R13. Do not implement out-of-scope features without approval.
+R14. Ask one short question if a required product decision is genuinely
+     unclear; otherwise follow these documents.

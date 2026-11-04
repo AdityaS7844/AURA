@@ -1,0 +1,116 @@
+==========================================================
+01 - USE CASES & USERS
+==========================================================
+
+----------------------------------------------------------
+1. USER TYPES
+----------------------------------------------------------
+A) Student
+   - Wants quick everyday and college outfit ideas.
+   - May have a limited clothing budget.
+   - Needs casual, ethnic, party and occasional formal outfits.
+
+B) Working Professional
+   - Needs office, meeting and formal outfit suggestions.
+   - Wants weather-aware recommendations.
+
+C) General Wardrobe Owner
+   - Wants to organise clothes and discover unused combinations.
+
+D) Admin (optional)
+   - May view basic platform statistics and deactivate abusive accounts.
+   - Admin tools are not required for the first working MVP.
+
+----------------------------------------------------------
+2. USER STORIES
+----------------------------------------------------------
+US-01 Sign up and log in securely.
+US-02 Set preferred styles, colours and home city.
+US-03 Add a clothing item with a photo and details.
+US-04 Browse, search and filter personal clothing.
+US-05 Edit or delete a clothing item.
+US-06 Select an occasion and request outfit suggestions.
+US-07 Receive 3-5 outfit options based only on owned items.
+US-08 See an explanation for each recommendation.
+US-09 Like, dislike, save and mark an outfit as worn.
+US-10 View saved outfits and recommendation history.
+US-11 See wardrobe statistics and most/least worn items.
+US-12 Recommendations can use prior feedback as preference context.
+
+----------------------------------------------------------
+3. MAIN USE CASES
+----------------------------------------------------------
+
+UC-01 REGISTER / LOGIN
+Actor: Visitor
+Flow: Sign up -> account created -> login -> onboarding -> dashboard.
+Alternative: duplicate email or invalid credentials -> clear error.
+Postcondition: user has a valid session.
+
+UC-02 ONBOARDING
+Flow: choose preferred styles -> favourite/avoid colours -> home city
+      -> save preferences.
+Skip is allowed; users can edit preferences later.
+
+UC-03 ADD CLOTHING
+Flow: Wardrobe -> Add item -> optional image -> enter details -> Save.
+Backend validates fields and image, stores image and database record.
+The image is optional; the item must still be usable without it.
+
+UC-04 BROWSE / EDIT / DELETE
+Flow: open Wardrobe -> search/filter -> open item -> edit or delete.
+Delete requires confirmation. A user can access only their own items.
+
+UC-05 GENERATE OUTFITS (MAIN USE CASE)
+Precondition: user has at least one top and one bottom, or one dress.
+Flow:
+1. User selects occasion, style preference (optional), city/weather.
+2. Backend loads the user's clothing and preferences from SQLite.
+3. Backend sends a compact JSON context to Gemini.
+4. Gemini returns structured recommendations containing item IDs.
+5. Backend validates that every ID belongs to the current user and
+   exists in the supplied wardrobe context.
+6. Backend saves valid outfit records and returns item details.
+7. React displays outfit cards with photos and explanations.
+Alternative:
+- Too few clothes -> ask user to add more items.
+- Gemini unavailable -> show retry/fallback message.
+- Invalid Gemini response -> reject it and log a safe diagnostic.
+
+UC-06 FEEDBACK
+Flow: user likes, dislikes, saves or marks an outfit as worn.
+Feedback is stored in SQLite. Recent feedback may be included as a
+small preference summary in future Gemini prompts.
+Do not claim that Gemini permanently learns or trains itself from
+individual user feedback.
+
+UC-07 SAVED OUTFITS / HISTORY
+Flow: open Saved -> choose Saved, Liked or History -> view outfit.
+
+UC-08 PROFILE / PREFERENCES
+Flow: edit name, home city, styles, favourite colours and avoid colours.
+
+UC-09 INSIGHTS
+Show total clothing items, counts by category, most worn and never worn.
+
+----------------------------------------------------------
+4. ACTOR VS USE CASE
+----------------------------------------------------------
+Use case                   Student  Professional  General  Admin
+Register/login                X          X           X
+Onboarding/preferences        X          X           X
+Add/browse/edit clothes       X          X           X
+Generate outfit suggestions   X          X           X
+Feedback/save/history         X          X           X
+Wardrobe insights             X          X           X
+Admin tools                                                  X
+
+----------------------------------------------------------
+5. DEMO SCENARIO
+----------------------------------------------------------
+A student has 25 clothing items in AURA. The user selects "College",
+chooses a casual style and requests suggestions. The backend retrieves
+the user's clothes and current weather, then sends the relevant JSON
+context to Gemini. Gemini returns three combinations using supplied
+item IDs. The backend validates the IDs and returns the outfits with
+their actual clothing photographs. The user saves one outfit.

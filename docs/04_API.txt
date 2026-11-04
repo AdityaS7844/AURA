@@ -1,0 +1,192 @@
+==========================================================
+04 - API SPECIFICATION (REST + JSON)
+==========================================================
+
+Base URL: http://localhost:8000/api/v1
+Authentication: Authorization: Bearer <JWT>
+All routes require authentication except register and login.
+Content type: JSON except image upload/update (multipart/form-data).
+IDs: integer. Dates: ISO 8601.
+
+STANDARD ERROR:
+  {"detail":"Human readable message"}
+
+STATUS CODES:
+  200 OK | 201 Created | 204 No Content | 400 Bad Request
+  401 Unauthorized | 403 Forbidden | 404 Not Found
+  409 Conflict | 422 Validation Error | 502 Upstream Service Error
+  503 AI Service Temporarily Unavailable
+
+----------------------------------------------------------
+A. AUTH
+----------------------------------------------------------
+POST /auth/register
+Body: {"name":"Rutuja","email":"r@example.com","password":"min8chars"}
+201: {"access_token":"...","token_type":"bearer",
+      "user":{"id":1,"name":"Rutuja","email":"r@example.com",
+              "role":"user","created_at":"..."}}
+409: duplicate email.
+
+POST /auth/login
+Body: {"email":"r@example.com","password":"..."}
+200: same response shape as register.
+401: invalid credentials.
+
+GET /auth/me -> UserOut
+PUT /auth/change-password
+Body: {"old_password":"...","new_password":"min8chars"}
+204: no content.
+DELETE /auth/me -> 204; deletes account-owned data and image files.
+
+----------------------------------------------------------
+B. PREFERENCES
+----------------------------------------------------------
+GET /preferences -> PreferenceOut
+
+PUT /preferences
+Body (all optional):
+{
+  "styles":["casual","minimal"],
+  "favorite_colors":["#000000","#1F2A44"],
+  "avoid_colors":["#FF00FF"],
+  "city":"Mumbai",
+  "onboarding_done":true
+}
+200: updated PreferenceOut.
+
+----------------------------------------------------------
+C. WARDROBE
+----------------------------------------------------------
+POST /wardrobe/items (multipart/form-data)
+Fields:
+  name*, category*, sub_type?, color_name*, color_hex*,
+  secondary_color_hex?, pattern?, season?, formality?,
+  occasions? (comma-separated values), warmth?, fabric?, notes?,
+  image? (optional file)
+201: ItemOut.
+
+GET /wardrobe/items
+Query:
+  category?, color?, season?, occasion?, search?, page=1, limit=20
+200: {"items":[ItemOut],"total":42,"page":1,"limit":20}
+
+GET /wardrobe/items/{id} -> ItemOut
+PUT /wardrobe/items/{id} (multipart/form-data; all fields optional)
+DELETE /wardrobe/items/{id} -> 204
+POST /wardrobe/items/{id}/worn -> updated ItemOut
+
+Only the authenticated user's items may be read or changed.
+
+----------------------------------------------------------
+D. WEATHER
+----------------------------------------------------------
+GET /weather?city=Mumbai
+200:
+{
+  "city":"Mumbai",
+  "temp_c":31.2,
+  "feels_like_c":35.0,
+  "condition":"Partly cloudy",
+  "rain_probability":10,
+  "class":"hot",
+  "is_rainy":false
+}
+404: city not found.
+502: weather provider unavailable.
+
+----------------------------------------------------------
+E. OUTFITS (MAIN FEATURE)
+----------------------------------------------------------
+POST /outfits/suggest
+Body:
+{
+  "occasion":"formal",
+  "city":"Mumbai",
+  "temp_c":null,
+  "style":"formal",
+  "anchor_item_id":null,
+  "count":4,
+  "exclude_outfit_ids":[]
+}
+
+Fields:
+  occasion*          allowed occasion from 08_SCHEMA
+  city?              defaults to saved city
+  temp_c?            manual temperature override; otherwise weather API
+  style?             optional style preference
+  anchor_item_id?    optional owned item to build around
+  count              default 4, minimum 1, maximum 5
+  exclude_outfit_ids list of prior outfit IDs to avoid repeating
+
+200:
+{
+  "weather": { "city":"Mumbai", "temp_c":24, "class":"warm",
+               "condition":"Clear", "feels_like_c":25,
+               "rain_probability":0, "is_rainy":false },
+  "outfits": [
+    {
+      "id":77,
+      "occasion":"formal",
+      "name":"Navy Smart Casual",
+      "items":[ItemOut, ItemOut, ItemOut],
+      "score":87,
+      "reason":"The navy and white colours work well for a formal look.",
+      "feedback":null
+    }
+  ]
+}
+
+400: insufficient wardrobe or invalid anchor item.
+422: invalid request.
+503: Gemini service unavailable or invalid response after safe retry.
+The backend must validate every returned item ID against the user's
+current wardrobe before saving or returning an outfit.
+
+POST /outfits/{id}/feedback
+Body: {"action":"like"}
+Allowed: like | dislike | save | unsave | worn
+200: {"detail":"Feedback saved","outfit":OutfitOut}
+
+GET /outfits/saved?type=saved|liked|history&page=1
+200: {"outfits":[OutfitOut],"total":10}
+
+GET /outfits/{id} -> OutfitOut
+
+----------------------------------------------------------
+F. INSIGHTS
+----------------------------------------------------------
+GET /insights/summary
+200:
+{
+  "total_items":40,
+  "by_category":{"top":12,"bottom":8},
+  "most_worn":[ItemOut],
+  "never_worn":[ItemOut],
+  "saved_outfits":6
+}
+
+----------------------------------------------------------
+G. ADMIN (OPTIONAL)
+----------------------------------------------------------
+GET /admin/stats
+GET /admin/users
+PUT /admin/users/{id}/deactivate
+Admin routes require role=admin.
+
+----------------------------------------------------------
+H. STATIC IMAGES
+----------------------------------------------------------
+GET /uploads/{user_id}/{filename}
+Images must not expose private files belonging to another user.
+Prefer an authenticated image route or a safe access policy rather
+than trusting a user-supplied path.
+
+----------------------------------------------------------
+RULES
+----------------------------------------------------------
+- Every protected route uses get_current_user.
+- Every database query is scoped to the authenticated user.
+- Validate all input with Pydantic.
+- Never return password_hash, JWT secret or Gemini API key.
+- CORS allows the configured frontend origin only.
+- API field names follow 08_SCHEMA.txt.

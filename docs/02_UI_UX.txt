@@ -1,0 +1,210 @@
+==========================================================
+02 - UI / UX SPECIFICATION
+==========================================================
+
+----------------------------------------------------------
+1. DESIGN DIRECTION
+----------------------------------------------------------
+Product name: AURA
+Tagline: Your wardrobe. Your identity. Reimagined.
+
+Visual identity:
+- Premium futuristic fashion-tech application.
+- Purple and lavender visual language.
+- Fashion photography is the main visual focus.
+- Clean SaaS dashboard layout with generous whitespace.
+- Desktop-first design, responsive on tablet and mobile.
+- The logged-in experience opens directly on the app dashboard.
+- A separate marketing landing page is not part of the first MVP.
+
+----------------------------------------------------------
+2. DESIGN SYSTEM
+----------------------------------------------------------
+Colors:
+  Primary       #4B2E9E
+  Accent        #7355CF
+  Lavender      #EAE3FF
+  Page          #F7F5FC
+  Surface       #FFFFFF
+  Text          #211B2D
+  Muted text    #777184
+  Border        #EAE7EF
+  Success       #278653
+  Error         #D64550
+  Warning       #B7791F
+
+Typography:
+  Headings : Outfit, fallback sans-serif
+  Body     : Inter, fallback sans-serif
+  Headings use 600-700 weight; body uses 400-500.
+
+Components:
+  Cards       : white surface, 16px radius, subtle border/shadow
+  Buttons     : primary purple, 10-12px radius
+  Inputs      : white/light surface, clear labels and focus state
+  Chips       : lavender selected state
+  Icons       : lucide-react outline icons
+  Spacing     : 8px base spacing scale
+  Sidebar     : desktop fixed/collapsible, white surface
+  Mobile nav  : bottom navigation or compact menu
+
+----------------------------------------------------------
+3. NAVIGATION
+----------------------------------------------------------
+Desktop sidebar:
+  Dashboard
+  My Wardrobe
+  AI Stylist
+  Outfit Planner
+  Saved Outfits
+  Profile
+  Settings
+
+Top bar:
+  Search (optional), notifications, user avatar/profile menu.
+
+Mobile:
+  Responsive compact header and bottom tabs for the most-used sections.
+  Do not let the desktop sidebar overflow on narrow screens.
+
+----------------------------------------------------------
+4. SCREEN LIST
+----------------------------------------------------------
+S1 Login
+S2 Sign up
+S3 Onboarding
+S4 Dashboard
+S5 My Wardrobe
+S6 Add / Edit Clothing Item
+S7 Clothing Item Detail
+S8 AI Stylist / Occasion Selection
+S9 Outfit Recommendations
+S10 Outfit Detail
+S11 Outfit Planner
+S12 Saved Outfits / History
+S13 Profile / Settings
+S14 Insights
+S15 404 / Error
+
+----------------------------------------------------------
+5. SCREEN DETAILS
+----------------------------------------------------------
+S1 LOGIN
+- Email and password fields.
+- Login button, validation and helpful error states.
+- Link to create an account.
+
+S2 SIGN UP
+- Name, email, password and confirm password.
+- Password minimum 8 characters.
+- Link to login.
+
+S3 ONBOARDING
+- Step 1: preferred styles (casual, formal, sporty, streetwear,
+  ethnic, minimal).
+- Step 2: favourite colours and colours to avoid.
+- Step 3: home city.
+- Skip is allowed; preferences can be changed later.
+
+S4 DASHBOARD
+- Personal greeting.
+- Weather card using saved city.
+- AI Look of the Day / recent recommendation.
+- Quick actions: Add Clothes, Generate Outfit, Plan My Week.
+- Stats: wardrobe items, saved outfits, most-worn item.
+- Recently added clothing items.
+- Empty state for a new user.
+
+S5 MY WARDROBE
+- Search and Add Clothing action.
+- Category filters: All, Tops, Bottoms, Dresses, Outerwear,
+  Footwear, Accessories.
+- Optional filters: colour, season, occasion.
+- Clothing cards show photo, name, category and colour.
+- Loading, empty and error states.
+
+S6 ADD / EDIT CLOTHING ITEM
+- Image upload with preview (optional).
+- Name, category, sub_type, colour, pattern, season, formality,
+  occasions, warmth, fabric and notes.
+- Required-field validation.
+- Save and Cancel actions.
+
+S7 ITEM DETAIL
+- Large image, details, times worn and last worn.
+- Edit and Delete actions.
+- Confirm before deleting.
+
+S8 AI STYLIST
+- Occasion selector: casual, office, formal, party, date, sports,
+  travel, festival.
+- Weather/city preview.
+- Optional preferred style.
+- Optional anchor item ("build an outfit around this").
+- Number of outfits (3-5).
+- Generate button and loading state.
+
+S9 OUTFIT RECOMMENDATIONS
+- Outfit cards containing actual wardrobe item images.
+- Outfit name, occasion, explanation and match score if provided.
+- Show which wardrobe items are used.
+- Like, Dislike, Save and "I wore this" actions.
+- Try Again and Show More.
+- Never display an item that is not owned by the user.
+
+S10 OUTFIT DETAIL
+- Larger collage of selected clothing items.
+- Explanation and item details.
+- Save, Like, Dislike and Worn actions.
+
+S11 OUTFIT PLANNER
+- Week/month calendar.
+- Add a saved outfit to a date.
+- Avoid duplicate schedule entries where possible.
+- Planner can be a later MVP milestone if time is limited.
+
+S12 SAVED OUTFITS / HISTORY
+- Tabs: Saved, Liked, History.
+- Outfit cards and empty states.
+
+S13 PROFILE / SETTINGS
+- Edit name, city, styles and colour preferences.
+- Change password, logout and delete account.
+- Delete account requires confirmation.
+
+S14 INSIGHTS
+- Total wardrobe items.
+- Items by category.
+- Most worn and never worn items.
+- Saved outfit count.
+
+S15 ERROR / 404
+- Friendly message and navigation back to Dashboard.
+
+----------------------------------------------------------
+6. REUSABLE COMPONENTS
+----------------------------------------------------------
+AppLayout, Sidebar, Topbar, BottomNavigation, Button, Input, Select,
+ChipGroup, ColorSwatchPicker, ImageUploader, ClothingCard, OutfitCard,
+WeatherCard, OccasionCard, FilterBar, SearchBar, ConfirmModal, Toast,
+Skeleton, EmptyState, ProtectedRoute, StatCard.
+
+----------------------------------------------------------
+7. UX RULES
+----------------------------------------------------------
+- Every data list has loading, empty, error and success states.
+- Forms validate on submit and show field-level errors.
+- Destructive actions require confirmation.
+- Buttons show loading/disabled state during requests.
+- Images have useful alt text and are lazy-loaded where appropriate.
+- Keyboard focus must be visible.
+- Token expiry redirects to Login with a message.
+- Desktop is the first design target; mobile must remain usable.
+- Never use fabricated wardrobe items in actual user recommendations.
+
+----------------------------------------------------------
+8. MAIN USER FLOW
+----------------------------------------------------------
+Sign up -> Onboarding -> Dashboard -> Add clothing items ->
+AI Stylist -> Select occasion -> Generate recommendations ->
+View outfit -> Like/Save/Worn -> Saved Outfits.

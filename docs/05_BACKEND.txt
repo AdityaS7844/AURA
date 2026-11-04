@@ -1,0 +1,178 @@
+==========================================================
+05 - BACKEND SPECIFICATION
+==========================================================
+
+Stack: Python 3.11+, FastAPI, SQLAlchemy, SQLite, Pydantic, JWT.
+
+----------------------------------------------------------
+1. SETUP
+----------------------------------------------------------
+Suggested requirements:
+  fastapi
+  uvicorn[standard]
+  sqlalchemy
+  pydantic[email]
+  python-jose[cryptography]
+  passlib[bcrypt]
+  python-multipart
+  python-dotenv
+  httpx
+  pillow
+  google-genai
+  pytest
+
+Use a virtual environment. Install dependencies from requirements.txt.
+
+.env (never commit):
+  SECRET_KEY=replace_with_long_random_secret
+  ACCESS_TOKEN_EXPIRE_MINUTES=1440
+  DATABASE_URL=sqlite:///./wardrobe.db
+  UPLOAD_DIR=./uploads
+  FRONTEND_ORIGIN=http://localhost:5173
+  GEMINI_API_KEY=your_key_here
+  GEMINI_MODEL=use_a_current_supported_model_name
+
+Provide .env.example with placeholders only.
+Run backend:
+  uvicorn app.main:app --reload
+
+----------------------------------------------------------
+2. DATABASE
+----------------------------------------------------------
+Use the tables and field definitions in 08_SCHEMA.txt.
+SQLite development database; SQLAlchemy ORM.
+Enable SQLite foreign keys using PRAGMA foreign_keys=ON.
+Use a migration tool such as Alembic before production.
+Do not delete the database as a normal schema-update strategy.
+
+----------------------------------------------------------
+3. LAYERED ARCHITECTURE
+----------------------------------------------------------
+routers/  : HTTP parsing, auth dependency, status codes, response.
+services/ : business logic and orchestration.
+models/   : SQLAlchemy tables.
+schemas/  : Pydantic request and response models.
+utils/    : security, image validation, common helpers.
+config.py: environment configuration.
+database.py: engine and session.
+
+Keep routers thin. Do not put Gemini prompt construction or database
+queries directly inside route handlers.
+
+----------------------------------------------------------
+4. AUTHENTICATION AND SECURITY
+----------------------------------------------------------
+- Hash passwords using bcrypt-compatible password hashing.
+- Minimum password length: 8.
+- JWT algorithm: HS256; expiry configured in .env.
+- JWT subject contains the user ID.
+- Use get_current_user on all protected routes.
+- Scope every user-owned query by current_user.id.
+- Never trust user_id supplied in request body for ownership.
+- Do not log passwords, tokens, API keys or full private prompts.
+- Restrict CORS to configured frontend origin.
+- Validate upload type: jpg, jpeg, png, webp.
+- Maximum original upload size: 5 MB.
+- Generate random UUID filenames; never trust original path.
+- Resize large images to max dimension 1024px.
+- Store images under uploads/<user_id>/.
+- Validate access to image files; prevent path traversal.
+- Rate-limit or otherwise protect login and AI-generation endpoints
+  before public deployment.
+
+----------------------------------------------------------
+5. GEMINI SERVICE
+----------------------------------------------------------
+Create app/services/gemini_service.py.
+Use the official Google Gen AI Python SDK.
+Read GEMINI_API_KEY and GEMINI_MODEL from backend settings.
+Do not put API calls in React.
+
+Recommended service flow:
+1. Receive an authenticated user's outfit request.
+2. Load user's wardrobe, preferences and weather from trusted sources.
+3. Reduce data to the fields Gemini needs (ID, category, sub_type,
+   colour, pattern, season, warmth, formality, occasions, style).
+4. Send a prompt and structured JSON response schema to Gemini.
+5. Parse the response.
+6. Validate every item ID and rule on the backend.
+7. Save valid outfit records.
+8. Return API response defined in 04_API.txt.
+
+Error handling:
+- Timeout: return a clear temporary service error.
+- Rate limit/quota: return a retry-friendly error.
+- Invalid JSON: retry once with a repair/strict-format prompt, then fail.
+- Unknown item ID: reject the recommendation; never silently substitute.
+- Empty wardrobe: return a helpful 400 response before calling Gemini.
+- Do not send password, email, JWT, or unrelated profile information
+  to Gemini.
+- Send only the minimum wardrobe and preference context needed.
+- Do not assume Gemini retains conversation or user data between calls.
+
+----------------------------------------------------------
+6. WEATHER SERVICE
+----------------------------------------------------------
+Use Open-Meteo geocoding and forecast endpoints.
+Use httpx with a 5-second timeout.
+Cache results per city for 30 minutes.
+Map weather codes to a readable condition and calculate weather class.
+On provider failure, use a user-supplied manual temperature if present;
+otherwise use a clearly identified neutral fallback only if product
+rules permit it. Do not pretend fallback weather is live weather.
+
+----------------------------------------------------------
+7. FEEDBACK AND PERSONALISATION
+----------------------------------------------------------
+Store feedback in SQLite.
+Actions: like, dislike, save, unsave, worn.
+Like/dislike are mutually exclusive for a given user and outfit.
+Save/unsave toggles saved state.
+Worn increments times_worn and updates last_worn for each outfit item.
+
+For future Gemini requests, create a small feedback summary, for example:
+- liked styles/colours from recent outfits
+- disliked combinations
+- frequently saved outfit types
+
+This is context supplied in the prompt. It is NOT model fine-tuning,
+and do not claim Gemini has permanently learned the user.
+
+----------------------------------------------------------
+8. ERROR HANDLING
+----------------------------------------------------------
+- Use HTTPException with status codes from 04_API.txt.
+- Pydantic validation errors return 422.
+- Unexpected errors return a generic 500 message; details go to logs.
+- Never include API keys or provider raw error bodies in client responses.
+- Return consistent {"detail":"..."} errors.
+
+----------------------------------------------------------
+9. TESTING
+----------------------------------------------------------
+Use a separate SQLite test database.
+Minimum tests:
+- register/login success and failure
+- duplicate email rejected
+- add/list/update/delete clothing item
+- user A cannot read/update/delete user B's item
+- upload rejects invalid file type and oversized file
+- weather classification and provider failure
+- Gemini response parsing and schema validation
+- Gemini unknown item ID is rejected
+- Gemini cannot recommend an item outside current user's wardrobe
+- anchor item must appear in every returned outfit
+- empty wardrobe returns helpful error
+- feedback save/unsave/like/dislike/worn behaviour
+- no secrets in API responses
+
+Mock Gemini API calls in automated tests; tests should not require a
+real API key or consume paid/free-tier quota.
+
+----------------------------------------------------------
+10. SEED DATA
+----------------------------------------------------------
+Provide scripts/seed.py that creates a demo user and approximately
+25 varied clothing items across all categories, colours and occasions.
+Use a clearly documented local demo password.
+Do not commit real user data or real API keys.

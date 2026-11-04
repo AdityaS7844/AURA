@@ -1,0 +1,215 @@
+==========================================================
+08 - SCHEMA (DATABASE + VALIDATION)
+==========================================================
+This file is the source of truth for field names and allowed values.
+Database: SQLite via SQLAlchemy. Naming: snake_case, plural tables.
+
+----------------------------------------------------------
+1. RELATIONSHIPS
+----------------------------------------------------------
+users 1---1 preferences
+users 1---N clothing_items
+users 1---N outfits
+users 1---N feedback
+outfits N---N clothing_items via outfit_items
+
+One user owns many clothing items and outfits.
+An outfit contains multiple items. An item may appear in many outfits.
+Feedback belongs to one user and one outfit.
+
+----------------------------------------------------------
+2. ALLOWED VALUES
+----------------------------------------------------------
+role      : user | admin
+category  : top | bottom | dress | outerwear | footwear | accessory
+pattern   : solid | striped | checked | printed
+season    : summer | winter | all
+formality : integer 1..5 (1 very casual, 5 very formal)
+warmth    : integer 1..5 (1 very light, 5 very warm)
+occasion  : casual | office | formal | party | date | sports |
+            travel | festival
+style     : casual | formal | sporty | streetwear | ethnic | minimal
+feedback.action : like | dislike | save
+weather class   : hot | warm | mild | cool | cold
+
+sub_type by category:
+top       : tshirt, shirt, polo, kurta, sweater, hoodie, tank, blouse
+bottom    : jeans, trousers, shorts, skirt, joggers, leggings, chinos
+dress     : casual_dress, formal_dress, gown, jumpsuit, kurti_set
+outerwear : jacket, blazer, coat, cardigan, shrug, raincoat
+footwear  : sneakers, formal_shoes, sandals, boots, loafers, heels,
+            flats, slippers
+accessory : watch, belt, scarf, cap, bag, jewellery, sunglasses
+
+Default warmth by sub_type:
+1: tank, shorts, sandals, skirt
+2: tshirt, shirt, polo, kurta, jeans, sneakers
+3: chinos, trousers, blazer, cardigan, loafers
+4: hoodie, sweater, jacket, boots
+5: coat, lined raincoat
+
+Default formality by sub_type:
+1: tshirt, shorts, joggers, slippers, sandals, tank
+2: jeans, hoodie, sneakers, polo, kurta
+3: chinos, shirt, loafers, cardigan
+4: trousers, blazer, blouse, formal_dress
+5: formal_shoes, gown, coat
+
+----------------------------------------------------------
+3. DATABASE TABLES
+----------------------------------------------------------
+users:
+  id INTEGER PK
+  name VARCHAR(100) NOT NULL
+  email VARCHAR(255) NOT NULL UNIQUE
+  password_hash VARCHAR(255) NOT NULL
+  role VARCHAR(10) DEFAULT 'user'
+  is_active BOOLEAN DEFAULT true
+  created_at DATETIME
+
+preferences:
+  id INTEGER PK
+  user_id INTEGER FK UNIQUE -> users.id
+  styles JSON list default []
+  favorite_colors JSON list default []
+  avoid_colors JSON list default []
+  city VARCHAR(100) nullable
+  onboarding_done BOOLEAN default false
+
+clothing_items:
+  id INTEGER PK
+  user_id INTEGER FK -> users.id
+  name VARCHAR(100) NOT NULL
+  category VARCHAR(20) NOT NULL
+  sub_type VARCHAR(30) nullable
+  color_name VARCHAR(30) NOT NULL
+  color_hex VARCHAR(7) NOT NULL
+  secondary_color_hex VARCHAR(7) nullable
+  pattern VARCHAR(10) default 'solid'
+  season VARCHAR(10) default 'all'
+  formality INTEGER default 2, range 1..5
+  occasions JSON list default []
+  warmth INTEGER default 2, range 1..5
+  fabric VARCHAR(50) nullable
+  notes TEXT nullable
+  image_path VARCHAR(255) nullable
+  times_worn INTEGER default 0
+  last_worn DATE nullable
+  created_at DATETIME
+  updated_at DATETIME
+
+outfits:
+  id INTEGER PK
+  user_id INTEGER FK -> users.id
+  occasion VARCHAR(20) NOT NULL
+  name VARCHAR(100) NOT NULL
+  score INTEGER range 0..100
+  reason TEXT
+  created_at DATETIME
+
+outfit_items:
+  outfit_id INTEGER FK -> outfits.id
+  item_id INTEGER FK -> clothing_items.id
+  composite primary key (outfit_id, item_id)
+
+feedback:
+  id INTEGER PK
+  user_id INTEGER FK -> users.id
+  outfit_id INTEGER FK -> outfits.id
+  action VARCHAR(10) (like | dislike | save)
+  created_at DATETIME
+  Unique/current-state rule: keep one current action per user/outfit.
+  Like and dislike are mutually exclusive. Save is a separate saved state.
+  "unsave" is an API action that removes the save record, not a DB value.
+  "worn" is an event/action handled by the API and updates clothing_items;
+  it need not be stored as a feedback.action row in Version 1.
+
+Foreign keys should cascade on delete where appropriate. Enable SQLite
+foreign keys. When deleting an item, remove its outfit_items links; delete
+outfits that become empty. Delete associated image files safely.
+
+----------------------------------------------------------
+4. PYDANTIC REQUEST / RESPONSE SCHEMAS
+----------------------------------------------------------
+auth.py:
+  RegisterRequest: name (1..100), email (EmailStr), password (min 8)
+  LoginRequest: email, password
+  ChangePasswordRequest: old_password, new_password (min 8)
+  UserOut: id, name, email, role, created_at (never password_hash)
+  TokenResponse: access_token, token_type="bearer", user: UserOut
+
+preference.py:
+  PreferenceUpdate: styles?, favorite_colors?, avoid_colors?, city?,
+                    onboarding_done?
+  PreferenceOut: styles, favorite_colors, avoid_colors, city,
+                 onboarding_done
+
+wardrobe.py:
+  ItemCreate: name*, category*, sub_type?, color_name*, color_hex*,
+              secondary_color_hex?, pattern?, season?, formality?,
+              occasions?, warmth?, fabric?, notes?
+  ItemUpdate: all fields optional
+  ItemOut: id, name, category, sub_type, color_name, color_hex,
+           secondary_color_hex, pattern, season, formality, occasions,
+           warmth, fabric, notes, image_url, times_worn, last_worn,
+           created_at
+  ItemListOut: items, total, page, limit
+
+outfit.py:
+  SuggestRequest: occasion*, city?, temp_c?, style?, anchor_item_id?,
+                  count=4 (1..5), exclude_outfit_ids=[]
+  RecommendationItem: name, item_ids, reason, style, occasion,
+                      match_score (0..100)
+  OutfitOut: id, occasion, name, items:[ItemOut], score, reason, feedback
+  SuggestResponse: weather, outfits
+  FeedbackRequest: action (like | dislike | save | unsave | worn)
+  SavedListOut: outfits, total
+
+weather.py:
+  WeatherOut: city, temp_c, feels_like_c, condition,
+              rain_probability, class, is_rainy
+
+insights.py:
+  InsightsOut: total_items, by_category, most_worn, never_worn,
+               saved_outfits
+
+common.py:
+  ErrorOut: detail
+
+Use Pydantic v2 model_config = ConfigDict(from_attributes=True) for
+ORM response models. Validate enums and numeric ranges.
+
+----------------------------------------------------------
+5. FRONTEND TYPES
+----------------------------------------------------------
+Frontend uses the same API field names (snake_case).
+Keep enum constants in frontend/src/utils/constants.js.
+Do not silently rename API response fields.
+
+----------------------------------------------------------
+6. SAMPLE DATA
+----------------------------------------------------------
+Demo user:
+  demo@wardrobe.com (password documented only for local demo)
+
+Sample clothing:
+  White Oxford Shirt: top/shirt, white #FFFFFF, office/formal/date
+  Navy Chinos: bottom/chinos, navy #1F2A44, office/casual/date
+  Black Formal Shoes: footwear/formal_shoes, black #000000
+  Blue Denim Jeans: bottom/jeans, blue #3B5B92, casual/travel
+  Grey Hoodie: top/hoodie, grey #808080, winter/casual
+  Yellow Floral Kurta: top/kurta, yellow #F2C94C, festival/casual
+
+Seed target: approximately 25 items, all categories, 5+ colours and
+several occasions. Sample data must satisfy the enum lists above.
+
+----------------------------------------------------------
+7. TABLE CREATION BY MILESTONE
+----------------------------------------------------------
+M1: users
+M2: preferences
+M3: clothing_items
+M6: outfits, outfit_items
+M8: feedback
+
+Use Alembic migrations when schema changes need to be tracked.
