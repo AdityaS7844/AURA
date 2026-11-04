@@ -23,6 +23,13 @@ from app.schemas.wardrobe import (
     SUBTYPES_BY_CATEGORY,
 )
 from app.schemas.weather import WeatherOut
+from app.schemas.outfit import (
+    SuggestRequest,
+    GeminiRecommendationItem,
+    GeminiStructuredResponse,
+    OutfitOut,
+    SuggestResponse,
+)
 
 __all__ = [
     "RegisterRequest",
@@ -42,4 +49,9 @@ __all__ = [
     "ALLOWED_OCCASIONS",
     "SUBTYPES_BY_CATEGORY",
     "WeatherOut",
+    "SuggestRequest",
+    "GeminiRecommendationItem",
+    "GeminiStructuredResponse",
+    "OutfitOut",
+    "SuggestResponse",
 ]

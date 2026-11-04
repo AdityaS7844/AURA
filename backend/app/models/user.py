@@ -26,3 +26,6 @@ class User(Base):
 
     # 1-to-many relationship with clothing items
     clothing_items = relationship("ClothingItem", back_populates="user", cascade="all, delete-orphan")
+
+    # 1-to-many relationship with outfits
+    outfits = relationship("Outfit", back_populates="user", cascade="all, delete-orphan")

@@ -35,3 +35,4 @@ class ClothingItem(Base):
     updated_at = Column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now(), nullable=False)
 
     user = relationship("User", back_populates="clothing_items")
+    outfits = relationship("Outfit", secondary="outfit_items", back_populates="items")
