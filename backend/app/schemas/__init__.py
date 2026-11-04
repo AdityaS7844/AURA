@@ -7,6 +7,10 @@ from app.schemas.auth import (
     UserOut,
     TokenResponse,
 )
+from app.schemas.preference import (
+    PreferenceUpdate,
+    PreferenceOut,
+)
 
 __all__ = [
     "RegisterRequest",
@@ -14,4 +18,6 @@ __all__ = [
     "ChangePasswordRequest",
     "UserOut",
     "TokenResponse",
+    "PreferenceUpdate",
+    "PreferenceOut",
 ]

@@ -9,6 +9,7 @@ from app.config import get_settings
 from app.database import engine, Base
 import app.models  # Ensures all SQLAlchemy models are registered
 from app.routers.auth import router as auth_router
+from app.routers.preferences import router as preferences_router
 
 settings = get_settings()
 
@@ -45,3 +46,7 @@ def health_check():
 # Authentication Router
 app.include_router(auth_router, prefix="/api/v1/auth", tags=["Authentication"])
 app.include_router(auth_router, prefix="/auth", tags=["Authentication"])
+
+# Preferences Router
+app.include_router(preferences_router, prefix="/api/v1/preferences", tags=["Preferences"])
+app.include_router(preferences_router, prefix="/preferences", tags=["Preferences"])

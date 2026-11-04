@@ -1,23 +1,32 @@
 import React, { useState, useEffect } from 'react';
-import { Sparkles, LogOut, User, Server, Database, CheckCircle2, ShieldCheck, ArrowRight } from 'lucide-react';
+import { Link, useNavigate } from 'react-router-dom';
+import { Sparkles, LogOut, User, ShieldCheck, MapPin, Palette, Compass, ArrowRight, Settings } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
-import { checkHealth } from '../api/health';
+import { getPreferencesApi } from '../api/preferences';
 
 export default function DashboardPage() {
   const { user, logout } = useAuth();
-  const [healthStatus, setHealthStatus] = useState(null);
+  const navigate = useNavigate();
+  const [preferences, setPreferences] = useState(null);
+  const [loadingPrefs, setLoadingPrefs] = useState(true);
 
   useEffect(() => {
-    const fetchHealth = async () => {
+    const fetchPrefs = async () => {
       try {
-        const data = await checkHealth();
-        setHealthStatus(data);
+        const data = await getPreferencesApi();
+        setPreferences(data);
+        // If onboarding is not completed, navigate to onboarding wizard
+        if (!data.onboarding_done) {
+          navigate('/onboarding', { replace: true });
+        }
       } catch (err) {
-        console.error('Health check failed:', err);
+        console.error('Failed to load preferences:', err);
+      } finally {
+        setLoadingPrefs(false);
       }
     };
-    fetchHealth();
-  }, []);
+    fetchPrefs();
+  }, [navigate]);
 
   return (
     <div className="min-h-screen bg-[var(--color-aura-page)] text-[var(--color-aura-text)] flex flex-col justify-between">
@@ -34,18 +43,26 @@ export default function DashboardPage() {
             </div>
           </div>
 
-          <div className="flex items-center space-x-4">
-            <div className="flex items-center space-x-2 text-sm text-[var(--color-aura-muted)] bg-[var(--color-aura-page)] px-3 py-1.5 rounded-xl border border-[var(--color-aura-border)]">
-              <User className="w-4 h-4 text-[var(--color-aura-primary)]" />
+          <div className="flex items-center space-x-3">
+            <Link
+              to="/profile"
+              className="inline-flex items-center space-x-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold text-[var(--color-aura-text)] bg-[var(--color-aura-page)] border border-[var(--color-aura-border)] hover:bg-[var(--color-aura-lavender)]/30 transition-colors"
+            >
+              <Settings className="w-3.5 h-3.5 text-[var(--color-aura-primary)]" />
+              <span>Profile & Preferences</span>
+            </Link>
+
+            <div className="flex items-center space-x-2 text-xs text-[var(--color-aura-muted)] bg-[var(--color-aura-page)] px-3 py-1.5 rounded-xl border border-[var(--color-aura-border)]">
+              <User className="w-3.5 h-3.5 text-[var(--color-aura-primary)]" />
               <span className="font-medium text-[var(--color-aura-text)]">{user?.name}</span>
-              <span className="text-xs bg-[var(--color-aura-lavender)] text-[var(--color-aura-primary)] px-2 py-0.5 rounded-full uppercase tracking-wider">{user?.role}</span>
             </div>
+
             <button
               onClick={logout}
-              className="inline-flex items-center space-x-1.5 px-3.5 py-1.5 rounded-xl text-sm font-medium text-red-600 hover:bg-red-50 border border-transparent hover:border-red-200 transition-colors cursor-pointer"
+              className="inline-flex items-center space-x-1.5 px-3 py-1.5 rounded-xl text-xs font-medium text-red-600 hover:bg-red-50 border border-transparent hover:border-red-200 transition-colors cursor-pointer"
               title="Sign Out"
             >
-              <LogOut className="w-4 h-4" />
+              <LogOut className="w-3.5 h-3.5" />
               <span>Logout</span>
             </button>
           </div>
@@ -53,87 +70,128 @@ export default function DashboardPage() {
       </header>
 
       {/* Main Content Area */}
-      <main className="max-w-5xl mx-auto px-6 py-10 flex-1 w-full">
+      <main className="max-w-5xl mx-auto px-6 py-10 flex-1 w-full space-y-8">
         {/* Welcome Banner */}
-        <div className="bg-gradient-to-r from-[var(--color-aura-primary)] to-[var(--color-aura-accent)] rounded-3xl p-8 text-white shadow-lg mb-8">
+        <div className="bg-gradient-to-r from-[var(--color-aura-primary)] to-[var(--color-aura-accent)] rounded-3xl p-8 text-white shadow-lg">
           <div className="max-w-2xl">
             <span className="px-3 py-1 rounded-full bg-white/20 text-white text-xs font-semibold tracking-wide uppercase">
-              Milestone 1 Complete
+              Milestone 2 Complete
             </span>
             <h1 className="text-3xl md:text-4xl font-bold font-[var(--font-heading)] mt-4 mb-2">
-              Welcome back, {user?.name}!
+              Welcome, {user?.name}!
             </h1>
             <p className="text-white/80 text-sm md:text-base">
-              You are securely signed in with JWT authentication. Password hashing, session storage, and route protection are fully active.
+              Your profile preferences and styling criteria have been successfully configured and stored in SQLite.
             </p>
           </div>
         </div>
 
-        {/* Status & Next Step Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
-          {/* Active Session Details */}
-          <div className="bg-[var(--color-aura-surface)] p-6 rounded-2xl border border-[var(--color-aura-border)] shadow-xs">
-            <div className="flex items-center space-x-3 mb-4 pb-3 border-b border-[var(--color-aura-border)]">
-              <div className="p-2 rounded-lg bg-[var(--color-aura-lavender)] text-[var(--color-aura-primary)]">
-                <ShieldCheck className="w-5 h-5" />
+        {/* User Preferences Summary Card */}
+        <div className="bg-[var(--color-aura-surface)] p-6 sm:p-8 rounded-2xl border border-[var(--color-aura-border)] shadow-xs">
+          <div className="flex items-center justify-between pb-4 mb-6 border-b border-[var(--color-aura-border)]">
+            <div className="flex items-center space-x-3">
+              <div className="p-2.5 rounded-xl bg-[var(--color-aura-lavender)] text-[var(--color-aura-primary)]">
+                <Palette className="w-5 h-5" />
               </div>
               <div>
-                <h3 className="font-semibold text-base font-[var(--font-heading)]">Authenticated User Session</h3>
-                <p className="text-xs text-[var(--color-aura-muted)]">Verified against backend /api/v1/auth/me</p>
+                <h2 className="text-lg font-bold font-[var(--font-heading)]">Your Styling Profile</h2>
+                <p className="text-xs text-[var(--color-aura-muted)]">Configured preferences for Gemini outfit reasoning</p>
               </div>
             </div>
 
-            <div className="space-y-3 text-sm">
-              <div className="flex justify-between py-1 border-b border-gray-100">
-                <span className="text-[var(--color-aura-muted)]">User ID</span>
-                <span className="font-mono font-medium">#{user?.id}</span>
-              </div>
-              <div className="flex justify-between py-1 border-b border-gray-100">
-                <span className="text-[var(--color-aura-muted)]">Email</span>
-                <span className="font-medium">{user?.email}</span>
-              </div>
-              <div className="flex justify-between py-1 border-b border-gray-100">
-                <span className="text-[var(--color-aura-muted)]">Account Role</span>
-                <span className="font-medium capitalize">{user?.role}</span>
-              </div>
-              <div className="flex justify-between py-1">
-                <span className="text-[var(--color-aura-muted)]">Created At</span>
-                <span className="text-xs text-[var(--color-aura-muted)]">
-                  {user?.created_at ? new Date(user.created_at).toLocaleString() : 'Just now'}
-                </span>
-              </div>
-            </div>
+            <Link
+              to="/profile"
+              className="text-xs font-semibold text-[var(--color-aura-primary)] hover:underline flex items-center space-x-1"
+            >
+              <span>Edit Preferences</span>
+              <ArrowRight className="w-3.5 h-3.5" />
+            </Link>
           </div>
 
-          {/* Next Milestone Readiness */}
-          <div className="bg-[var(--color-aura-surface)] p-6 rounded-2xl border border-[var(--color-aura-border)] shadow-xs flex flex-col justify-between">
-            <div>
-              <div className="flex items-center space-x-3 mb-4 pb-3 border-b border-[var(--color-aura-border)]">
-                <div className="p-2 rounded-lg bg-[var(--color-aura-lavender)] text-[var(--color-aura-primary)]">
-                  <CheckCircle2 className="w-5 h-5 text-[var(--color-aura-success)]" />
-                </div>
-                <div>
-                  <h3 className="font-semibold text-base font-[var(--font-heading)]">Next: Milestone 2</h3>
-                  <p className="text-xs text-[var(--color-aura-muted)]">Preferences & Onboarding Wizard</p>
-                </div>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            {/* Home City */}
+            <div className="p-4 rounded-xl bg-[var(--color-aura-page)] border border-[var(--color-aura-border)]">
+              <div className="flex items-center space-x-2 text-[var(--color-aura-primary)] mb-1">
+                <MapPin className="w-4 h-4" />
+                <span className="text-xs font-semibold uppercase tracking-wider">Home City</span>
               </div>
-
-              <p className="text-sm text-[var(--color-aura-muted)] mb-4">
-                With user authentication established, the next milestone implements the <code className="text-xs px-1.5 py-0.5 rounded bg-gray-100">preferences</code> table (1-to-1 with User), onboarding wizard (preferred styles, colors, home city), and profile settings.
+              <div className="text-base font-bold text-[var(--color-aura-text)]">
+                {preferences?.city || 'Not specified'}
+              </div>
+              <p className="text-[11px] text-[var(--color-aura-muted)] mt-1">
+                Used for live weather forecasts via Open-Meteo
               </p>
             </div>
 
-            <div className="p-3.5 rounded-xl bg-[var(--color-aura-page)] border border-[var(--color-aura-border)] flex items-center justify-between text-xs font-medium text-[var(--color-aura-primary)]">
-              <span>Ready for M2 approval</span>
-              <ArrowRight className="w-4 h-4" />
+            {/* Preferred Styles */}
+            <div className="p-4 rounded-xl bg-[var(--color-aura-page)] border border-[var(--color-aura-border)]">
+              <div className="flex items-center space-x-2 text-[var(--color-aura-primary)] mb-2">
+                <Compass className="w-4 h-4" />
+                <span className="text-xs font-semibold uppercase tracking-wider">Styles</span>
+              </div>
+              <div className="flex flex-wrap gap-1.5">
+                {preferences?.styles && preferences.styles.length > 0 ? (
+                  preferences.styles.map((style) => (
+                    <span
+                      key={style}
+                      className="text-xs px-2.5 py-0.5 rounded-lg bg-[var(--color-aura-lavender)] text-[var(--color-aura-primary)] font-medium capitalize"
+                    >
+                      {style}
+                    </span>
+                  ))
+                ) : (
+                  <span className="text-xs text-[var(--color-aura-muted)]">No styles selected</span>
+                )}
+              </div>
+            </div>
+
+            {/* Favorite Colors */}
+            <div className="p-4 rounded-xl bg-[var(--color-aura-page)] border border-[var(--color-aura-border)]">
+              <div className="flex items-center space-x-2 text-[var(--color-aura-primary)] mb-2">
+                <Palette className="w-4 h-4" />
+                <span className="text-xs font-semibold uppercase tracking-wider">Favorite Colors</span>
+              </div>
+              <div className="flex flex-wrap gap-2">
+                {preferences?.favorite_colors && preferences.favorite_colors.length > 0 ? (
+                  preferences.favorite_colors.map((hex) => (
+                    <span
+                      key={hex}
+                      className="w-6 h-6 rounded-md border border-black/10 inline-block shadow-2xs"
+                      style={{ backgroundColor: hex }}
+                      title={hex}
+                    />
+                  ))
+                ) : (
+                  <span className="text-xs text-[var(--color-aura-muted)]">None selected</span>
+                )}
+              </div>
             </div>
           </div>
+        </div>
+
+        {/* Next Milestone Card */}
+        <div className="bg-[var(--color-aura-surface)] p-6 rounded-2xl border border-[var(--color-aura-border)] shadow-xs flex items-center justify-between">
+          <div className="flex items-center space-x-4">
+            <div className="p-3 rounded-2xl bg-[var(--color-aura-lavender)] text-[var(--color-aura-primary)]">
+              <ShieldCheck className="w-6 h-6" />
+            </div>
+            <div>
+              <h3 className="font-bold text-base font-[var(--font-heading)]">Ready for Milestone 3: Wardrobe Backend & Image Uploads</h3>
+              <p className="text-xs text-[var(--color-aura-muted)]">
+                Next up: <code className="text-xs font-mono">clothing_items</code> table, image validation/resizing, CRUD endpoints, and test seed data.
+              </p>
+            </div>
+          </div>
+
+          <span className="text-xs font-semibold px-3 py-1.5 rounded-xl bg-[var(--color-aura-lavender)] text-[var(--color-aura-primary)]">
+            M2 Verified
+          </span>
         </div>
       </main>
 
       {/* Footer */}
       <footer className="border-t border-[var(--color-aura-border)] py-6 text-center text-xs text-[var(--color-aura-muted)] bg-[var(--color-aura-surface)]">
-        AURA Wardrobe System • Authenticated Session • React 19 + FastAPI + SQLite
+        AURA Wardrobe System • React 19 + FastAPI + SQLite
       </footer>
     </div>
   );
