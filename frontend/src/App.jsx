@@ -7,6 +7,9 @@ import SignupPage from './pages/SignupPage';
 import OnboardingPage from './pages/OnboardingPage';
 import DashboardPage from './pages/DashboardPage';
 import ProfilePage from './pages/ProfilePage';
+import WardrobePage from './pages/WardrobePage';
+import AddEditItemPage from './pages/AddEditItemPage';
+import ItemDetailPage from './pages/ItemDetailPage';
 
 export default function App() {
   return (
@@ -39,6 +42,40 @@ export default function App() {
             element={
               <ProtectedRoute>
                 <ProfilePage />
+              </ProtectedRoute>
+            }
+          />
+
+          {/* Wardrobe Routes (Milestone 4) */}
+          <Route
+            path="/wardrobe"
+            element={
+              <ProtectedRoute>
+                <WardrobePage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/wardrobe/add"
+            element={
+              <ProtectedRoute>
+                <AddEditItemPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/wardrobe/edit/:id"
+            element={
+              <ProtectedRoute>
+                <AddEditItemPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/wardrobe/:id"
+            element={
+              <ProtectedRoute>
+                <ItemDetailPage />
               </ProtectedRoute>
             }
           />
