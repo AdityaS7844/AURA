@@ -11,6 +11,17 @@ from app.schemas.preference import (
     PreferenceUpdate,
     PreferenceOut,
 )
+from app.schemas.wardrobe import (
+    ItemCreate,
+    ItemUpdate,
+    ItemOut,
+    ItemListOut,
+    ALLOWED_CATEGORIES,
+    ALLOWED_PATTERNS,
+    ALLOWED_SEASONS,
+    ALLOWED_OCCASIONS,
+    SUBTYPES_BY_CATEGORY,
+)
 
 __all__ = [
     "RegisterRequest",
@@ -20,4 +31,13 @@ __all__ = [
     "TokenResponse",
     "PreferenceUpdate",
     "PreferenceOut",
+    "ItemCreate",
+    "ItemUpdate",
+    "ItemOut",
+    "ItemListOut",
+    "ALLOWED_CATEGORIES",
+    "ALLOWED_PATTERNS",
+    "ALLOWED_SEASONS",
+    "ALLOWED_OCCASIONS",
+    "SUBTYPES_BY_CATEGORY",
 ]

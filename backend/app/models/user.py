@@ -23,3 +23,6 @@ class User(Base):
 
     # 1-to-1 relationship with preferences
     preference = relationship("Preference", back_populates="user", uselist=False, cascade="all, delete-orphan")
+
+    # 1-to-many relationship with clothing items
+    clothing_items = relationship("ClothingItem", back_populates="user", cascade="all, delete-orphan")

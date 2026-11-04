@@ -3,13 +3,16 @@ AURA FastAPI Application Entrypoint
 Provides CORS configuration, lifecycle events, /health status, and API routers.
 """
 
-from fastapi import FastAPI
+from pathlib import Path
+from fastapi import FastAPI, HTTPException, status
+from fastapi.responses import FileResponse
 from fastapi.middleware.cors import CORSMiddleware
 from app.config import get_settings
 from app.database import engine, Base
 import app.models  # Ensures all SQLAlchemy models are registered
 from app.routers.auth import router as auth_router
 from app.routers.preferences import router as preferences_router
+from app.routers.wardrobe import router as wardrobe_router
 
 settings = get_settings()
 
@@ -50,3 +53,23 @@ app.include_router(auth_router, prefix="/auth", tags=["Authentication"])
 # Preferences Router
 app.include_router(preferences_router, prefix="/api/v1/preferences", tags=["Preferences"])
 app.include_router(preferences_router, prefix="/preferences", tags=["Preferences"])
+
+# Wardrobe Router
+app.include_router(wardrobe_router, prefix="/api/v1/wardrobe", tags=["Wardrobe"])
+app.include_router(wardrobe_router, prefix="/wardrobe", tags=["Wardrobe"])
+
+
+# Static Image Serving (Section H of 04_API.txt)
+@app.get("/api/v1/uploads/{user_id}/{filename}", tags=["Uploads"])
+@app.get("/uploads/{user_id}/{filename}", tags=["Uploads"])
+def get_uploaded_image(user_id: int, filename: str):
+    """Secure image file serving preventing directory traversal."""
+    base_dir = Path(settings.UPLOAD_DIR).resolve()
+    target_path = (base_dir / str(user_id) / filename).resolve()
+
+    if base_dir not in target_path.parents:
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Access denied.")
+    if not target_path.exists() or not target_path.is_file():
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Image not found.")
+
+    return FileResponse(target_path)
