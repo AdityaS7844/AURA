@@ -10,7 +10,7 @@ export default function AppLayout({ children }) {
   const navItems = [
     { name: 'Dashboard', to: '/', icon: LayoutDashboard },
     { name: 'My Wardrobe', to: '/wardrobe', icon: Shirt },
-    { name: 'AI Stylist', to: '/stylist', icon: Wand2, badge: 'M7' },
+    { name: 'AI Stylist', to: '/stylist', icon: Wand2 },
     { name: 'Saved Outfits', to: '/saved', icon: Bookmark, badge: 'M8' },
     { name: 'Profile & Settings', to: '/profile', icon: User },
   ];

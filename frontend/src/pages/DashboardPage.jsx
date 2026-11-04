@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Sparkles, Shirt, Plus, MapPin, Palette, Compass, ArrowRight } from 'lucide-react';
+import { Sparkles, Shirt, Plus, MapPin, Palette, Compass, ArrowRight, Wand2 } from 'lucide-react';
 import AppLayout from '../components/layout/AppLayout';
 import WeatherCard from '../components/weather/WeatherCard';
 import { useAuth } from '../context/AuthContext';
@@ -39,28 +39,35 @@ export default function DashboardPage() {
         <div className="bg-gradient-to-r from-[var(--color-aura-primary)] to-[var(--color-aura-accent)] rounded-3xl p-8 text-white shadow-lg flex flex-col md:flex-row md:items-center justify-between gap-6">
           <div className="max-w-2xl">
             <span className="px-3 py-1 rounded-full bg-white/20 text-white text-xs font-semibold tracking-wide uppercase">
-              Milestone 5 Active • Weather Integration
+              Milestone 7 Active • AI Stylist UI
             </span>
             <h1 className="text-3xl md:text-4xl font-bold font-[var(--font-heading)] mt-3 mb-2">
               Welcome back, {user?.name}!
             </h1>
             <p className="text-white/80 text-sm md:text-base">
-              Your digital wardrobe contains <strong>{wardrobeCount} clothing items</strong>. Live weather conditions adapt styling recommendations.
+              Your digital wardrobe contains <strong>{wardrobeCount} clothing items</strong>. Google Gemini is ready to style your outfits.
             </p>
           </div>
 
-          <div className="flex items-center space-x-3 shrink-0">
+          <div className="flex flex-wrap items-center gap-3 shrink-0">
+            <Link
+              to="/stylist"
+              className="px-5 py-2.5 rounded-xl text-xs font-bold text-[var(--color-aura-primary)] bg-white hover:bg-gray-50 transition-all shadow-md flex items-center space-x-1.5"
+            >
+              <Wand2 className="w-3.5 h-3.5" />
+              <span>AI Stylist</span>
+            </Link>
             <Link
               to="/wardrobe"
-              className="px-5 py-2.5 rounded-xl text-xs font-bold text-[var(--color-aura-primary)] bg-white hover:bg-gray-50 transition-all shadow-xs"
+              className="px-4 py-2.5 rounded-xl text-xs font-bold text-white bg-white/20 hover:bg-white/30 border border-white/30 transition-all"
             >
-              View Wardrobe
+              Wardrobe
             </Link>
             <Link
               to="/wardrobe/add"
-              className="px-5 py-2.5 rounded-xl text-xs font-bold text-white bg-white/20 hover:bg-white/30 border border-white/30 transition-all"
+              className="px-4 py-2.5 rounded-xl text-xs font-bold text-white bg-white/20 hover:bg-white/30 border border-white/30 transition-all"
             >
-              + Add Clothes
+              + Add
             </Link>
           </div>
         </div>
@@ -98,6 +105,30 @@ export default function DashboardPage() {
               </div>
             </div>
           </div>
+        </div>
+
+        {/* AI Stylist Quick Action Banner */}
+        <div className="p-6 rounded-3xl bg-[var(--color-aura-surface)] border border-[var(--color-aura-border)] shadow-xs flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+          <div className="flex items-center space-x-4">
+            <div className="w-12 h-12 rounded-2xl bg-[var(--color-aura-lavender)] text-[var(--color-aura-primary)] flex items-center justify-center shrink-0 shadow-2xs">
+              <Sparkles className="w-6 h-6" />
+            </div>
+            <div>
+              <h2 className="text-base font-bold text-[var(--color-aura-text)] font-[var(--font-heading)]">
+                Ready for AI Outfit Recommendations?
+              </h2>
+              <p className="text-xs text-[var(--color-aura-muted)] mt-0.5">
+                Generate weather-adapted combinations for casual, office, party, or date night with Gemini AI.
+              </p>
+            </div>
+          </div>
+          <Link
+            to="/stylist"
+            className="px-5 py-2.5 rounded-xl text-xs font-bold text-white bg-[var(--color-aura-primary)] hover:bg-[var(--color-aura-accent)] transition-all shadow-xs flex items-center space-x-1.5 shrink-0"
+          >
+            <span>Launch AI Stylist</span>
+            <ArrowRight className="w-3.5 h-3.5" />
+          </Link>
         </div>
 
         {/* Styling Profile Preview Card */}

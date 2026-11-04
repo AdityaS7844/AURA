@@ -10,6 +10,7 @@ import ProfilePage from './pages/ProfilePage';
 import WardrobePage from './pages/WardrobePage';
 import AddEditItemPage from './pages/AddEditItemPage';
 import ItemDetailPage from './pages/ItemDetailPage';
+import StylistPage from './pages/StylistPage';
 
 export default function App() {
   return (
@@ -76,6 +77,16 @@ export default function App() {
             element={
               <ProtectedRoute>
                 <ItemDetailPage />
+              </ProtectedRoute>
+            }
+          />
+
+          {/* Stylist Routes (Milestone 7) */}
+          <Route
+            path="/stylist"
+            element={
+              <ProtectedRoute>
+                <StylistPage />
               </ProtectedRoute>
             }
           />
