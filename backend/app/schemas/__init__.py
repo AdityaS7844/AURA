@@ -22,6 +22,7 @@ from app.schemas.wardrobe import (
     ALLOWED_OCCASIONS,
     SUBTYPES_BY_CATEGORY,
 )
+from app.schemas.weather import WeatherOut
 
 __all__ = [
     "RegisterRequest",
@@ -40,4 +41,5 @@ __all__ = [
     "ALLOWED_SEASONS",
     "ALLOWED_OCCASIONS",
     "SUBTYPES_BY_CATEGORY",
+    "WeatherOut",
 ]

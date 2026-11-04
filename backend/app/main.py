@@ -13,6 +13,7 @@ import app.models  # Ensures all SQLAlchemy models are registered
 from app.routers.auth import router as auth_router
 from app.routers.preferences import router as preferences_router
 from app.routers.wardrobe import router as wardrobe_router
+from app.routers.weather import router as weather_router
 
 settings = get_settings()
 
@@ -57,6 +58,10 @@ app.include_router(preferences_router, prefix="/preferences", tags=["Preferences
 # Wardrobe Router
 app.include_router(wardrobe_router, prefix="/api/v1/wardrobe", tags=["Wardrobe"])
 app.include_router(wardrobe_router, prefix="/wardrobe", tags=["Wardrobe"])
+
+# Weather Router
+app.include_router(weather_router, prefix="/api/v1/weather", tags=["Weather"])
+app.include_router(weather_router, prefix="/weather", tags=["Weather"])
 
 
 # Static Image Serving (Section H of 04_API.txt)

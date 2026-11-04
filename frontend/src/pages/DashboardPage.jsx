@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Sparkles, Shirt, Plus, MapPin, Palette, Compass, ArrowRight, CheckCircle2 } from 'lucide-react';
+import { Sparkles, Shirt, Plus, MapPin, Palette, Compass, ArrowRight } from 'lucide-react';
 import AppLayout from '../components/layout/AppLayout';
+import WeatherCard from '../components/weather/WeatherCard';
 import { useAuth } from '../context/AuthContext';
 import { getPreferencesApi } from '../api/preferences';
 import { listItemsApi } from '../api/wardrobe';
@@ -38,13 +39,13 @@ export default function DashboardPage() {
         <div className="bg-gradient-to-r from-[var(--color-aura-primary)] to-[var(--color-aura-accent)] rounded-3xl p-8 text-white shadow-lg flex flex-col md:flex-row md:items-center justify-between gap-6">
           <div className="max-w-2xl">
             <span className="px-3 py-1 rounded-full bg-white/20 text-white text-xs font-semibold tracking-wide uppercase">
-              AURA Wardrobe System
+              Milestone 5 Active • Weather Integration
             </span>
             <h1 className="text-3xl md:text-4xl font-bold font-[var(--font-heading)] mt-3 mb-2">
               Welcome back, {user?.name}!
             </h1>
             <p className="text-white/80 text-sm md:text-base">
-              Your digital wardrobe contains <strong>{wardrobeCount} clothing items</strong> ready for smart outfit combinations.
+              Your digital wardrobe contains <strong>{wardrobeCount} clothing items</strong>. Live weather conditions adapt styling recommendations.
             </p>
           </div>
 
@@ -64,37 +65,37 @@ export default function DashboardPage() {
           </div>
         </div>
 
-        {/* Quick Stats Grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
-          <div className="p-6 rounded-2xl bg-[var(--color-aura-surface)] border border-[var(--color-aura-border)] shadow-xs flex items-center justify-between">
-            <div>
-              <span className="text-xs font-semibold text-[var(--color-aura-muted)] uppercase tracking-wider">Total Clothes</span>
-              <div className="text-2xl font-bold text-[var(--color-aura-text)] mt-1">{wardrobeCount}</div>
-            </div>
-            <div className="w-12 h-12 rounded-2xl bg-blue-50 text-blue-600 flex items-center justify-center">
-              <Shirt className="w-6 h-6" />
-            </div>
+        {/* Live Weather & Quick Stats Grid */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          {/* Live Weather Card (Spans 1 Column on Desktop) */}
+          <div className="md:col-span-1">
+            <WeatherCard city={preferences?.city || 'Mumbai'} />
           </div>
 
-          <div className="p-6 rounded-2xl bg-[var(--color-aura-surface)] border border-[var(--color-aura-border)] shadow-xs flex items-center justify-between">
-            <div>
-              <span className="text-xs font-semibold text-[var(--color-aura-muted)] uppercase tracking-wider">Home City</span>
-              <div className="text-2xl font-bold text-[var(--color-aura-text)] mt-1">{preferences?.city || 'Not set'}</div>
-            </div>
-            <div className="w-12 h-12 rounded-2xl bg-purple-50 text-[var(--color-aura-primary)] flex items-center justify-center">
-              <MapPin className="w-6 h-6" />
-            </div>
-          </div>
-
-          <div className="p-6 rounded-2xl bg-[var(--color-aura-surface)] border border-[var(--color-aura-border)] shadow-xs flex items-center justify-between">
-            <div>
-              <span className="text-xs font-semibold text-[var(--color-aura-muted)] uppercase tracking-wider">Style Aesthetic</span>
-              <div className="text-sm font-bold text-[var(--color-aura-text)] capitalize mt-1.5 truncate max-w-[140px]">
-                {preferences?.styles?.join(', ') || 'General'}
+          {/* Quick Stats Cards (Span 2 Columns) */}
+          <div className="md:col-span-2 grid grid-cols-1 sm:grid-cols-2 gap-6">
+            <div className="p-6 rounded-2xl bg-[var(--color-aura-surface)] border border-[var(--color-aura-border)] shadow-xs flex items-center justify-between">
+              <div>
+                <span className="text-xs font-semibold text-[var(--color-aura-muted)] uppercase tracking-wider">Total Clothes</span>
+                <div className="text-2xl font-bold text-[var(--color-aura-text)] mt-1">{wardrobeCount}</div>
+                <p className="text-[11px] text-[var(--color-aura-muted)] mt-1">Across 6 categories</p>
+              </div>
+              <div className="w-12 h-12 rounded-2xl bg-blue-50 text-blue-600 flex items-center justify-center">
+                <Shirt className="w-6 h-6" />
               </div>
             </div>
-            <div className="w-12 h-12 rounded-2xl bg-emerald-50 text-emerald-600 flex items-center justify-center">
-              <Compass className="w-6 h-6" />
+
+            <div className="p-6 rounded-2xl bg-[var(--color-aura-surface)] border border-[var(--color-aura-border)] shadow-xs flex items-center justify-between">
+              <div>
+                <span className="text-xs font-semibold text-[var(--color-aura-muted)] uppercase tracking-wider">Style Aesthetic</span>
+                <div className="text-sm font-bold text-[var(--color-aura-text)] capitalize mt-1.5 truncate max-w-[140px]">
+                  {preferences?.styles?.join(', ') || 'General'}
+                </div>
+                <p className="text-[11px] text-[var(--color-aura-muted)] mt-1">Active AI preference</p>
+              </div>
+              <div className="w-12 h-12 rounded-2xl bg-emerald-50 text-emerald-600 flex items-center justify-center">
+                <Compass className="w-6 h-6" />
+              </div>
             </div>
           </div>
         </div>
