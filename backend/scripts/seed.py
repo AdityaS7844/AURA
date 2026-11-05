@@ -12,10 +12,14 @@ from pathlib import Path
 backend_dir = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(backend_dir))
 
+from datetime import date, timedelta
 from app.database import engine, Base, SessionLocal
 from app.models.user import User
 from app.models.preference import Preference
 from app.models.clothing import ClothingItem
+from app.models.outfit import Outfit
+from app.models.feedback import Feedback
+from app.models.planner import PlannedOutfit
 from app.utils.security import hash_password
 
 DEMO_USER_EMAIL = "demo@wardrobe.com"
@@ -441,34 +445,80 @@ def seed_database():
         # Check existing items count
         existing_items = db.query(ClothingItem).filter(ClothingItem.user_id == user.id).count()
         if existing_items > 0:
-            print(f"Demo user already has {existing_items} wardrobe items. Skipping item insertion.")
-            return
+            print(f"Demo user already has {existing_items} wardrobe items.")
+        else:
+            print(f"Seeding {len(SAMPLE_ITEMS)} clothing items across all categories...")
+            inserted_items = []
+            for item_data in SAMPLE_ITEMS:
+                item = ClothingItem(
+                    user_id=user.id,
+                    name=item_data["name"],
+                    category=item_data["category"],
+                    sub_type=item_data["sub_type"],
+                    color_name=item_data["color_name"],
+                    color_hex=item_data["color_hex"],
+                    secondary_color_hex=item_data.get("secondary_color_hex"),
+                    pattern=item_data["pattern"],
+                    season=item_data["season"],
+                    formality=item_data["formality"],
+                    occasions=item_data["occasions"],
+                    warmth=item_data["warmth"],
+                    fabric=item_data.get("fabric"),
+                    notes=item_data.get("notes"),
+                    image_path=None,
+                    times_worn=1 if "Oxford" in item_data["name"] else 0,
+                    last_worn=date.today() if "Oxford" in item_data["name"] else None,
+                )
+                db.add(item)
+                inserted_items.append(item)
 
-        print(f"Seeding {len(SAMPLE_ITEMS)} clothing items across all categories...")
-        for item_data in SAMPLE_ITEMS:
-            item = ClothingItem(
-                user_id=user.id,
-                name=item_data["name"],
-                category=item_data["category"],
-                sub_type=item_data["sub_type"],
-                color_name=item_data["color_name"],
-                color_hex=item_data["color_hex"],
-                secondary_color_hex=item_data.get("secondary_color_hex"),
-                pattern=item_data["pattern"],
-                season=item_data["season"],
-                formality=item_data["formality"],
-                occasions=item_data["occasions"],
-                warmth=item_data["warmth"],
-                fabric=item_data.get("fabric"),
-                notes=item_data.get("notes"),
-                image_path=None,
-                times_worn=0,
-                last_worn=None,
-            )
-            db.add(item)
+            db.commit()
+            for item in inserted_items:
+                db.refresh(item)
+            print(f"Successfully seeded {len(SAMPLE_ITEMS)} clothing items for {DEMO_USER_EMAIL}!")
 
-        db.commit()
-        print(f"Successfully seeded {len(SAMPLE_ITEMS)} clothing items for {DEMO_USER_EMAIL}!")
+        # Ensure demo user has at least 1 saved outfit and 1 planned outfit for complete demo review
+        existing_outfits = db.query(Outfit).filter(Outfit.user_id == user.id).count()
+        if existing_outfits == 0:
+            user_items = db.query(ClothingItem).filter(ClothingItem.user_id == user.id).all()
+            top_item = next((i for i in user_items if i.category == "top"), None)
+            bottom_item = next((i for i in user_items if i.category == "bottom"), None)
+            shoes_item = next((i for i in user_items if i.category == "footwear"), None)
+
+            if top_item and bottom_item:
+                outfit = Outfit(
+                    user_id=user.id,
+                    occasion="office",
+                    name="Sharp Office Oxford Ensemble",
+                    score=94,
+                    reason="Classic white oxford paired with tailored trousers creates a sophisticated, professional aesthetic suitable for work meetings.",
+                )
+                combo_items = [top_item, bottom_item]
+                if shoes_item:
+                    combo_items.append(shoes_item)
+                outfit.items = combo_items
+                db.add(outfit)
+                db.commit()
+                db.refresh(outfit)
+
+                # Add save feedback
+                save_fb = Feedback(user_id=user.id, outfit_id=outfit.id, action="save")
+                db.add(save_fb)
+                db.commit()
+
+                # Add calendar planned outfit for tomorrow
+                tomorrow = date.today() + timedelta(days=1)
+                planned = PlannedOutfit(
+                    user_id=user.id,
+                    outfit_id=outfit.id,
+                    planned_date=tomorrow,
+                    notes="Client Strategy Meeting",
+                )
+                db.add(planned)
+                db.commit()
+                print("Seeded sample outfit and calendar schedule for demo user!")
+        else:
+            print(f"Demo user has {existing_outfits} outfits styled.")
 
     finally:
         db.close()
