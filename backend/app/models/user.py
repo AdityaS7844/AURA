@@ -32,3 +32,6 @@ class User(Base):
 
     # 1-to-many relationship with outfit feedback
     feedbacks = relationship("Feedback", back_populates="user", cascade="all, delete-orphan")
+
+    # 1-to-many relationship with planned outfits
+    planned_outfits = relationship("PlannedOutfit", back_populates="user", cascade="all, delete-orphan")

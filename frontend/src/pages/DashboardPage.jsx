@@ -10,6 +10,7 @@ import {
   Wand2,
   Bookmark,
   BarChart3,
+  Calendar,
   TrendingUp,
   Flame,
   Clock,
@@ -88,7 +89,7 @@ export default function DashboardPage() {
         <div className="bg-gradient-to-r from-[var(--color-aura-primary)] via-indigo-900 to-[var(--color-aura-accent)] rounded-3xl p-8 text-white shadow-lg flex flex-col md:flex-row md:items-center justify-between gap-6">
           <div className="max-w-2xl">
             <span className="px-3 py-1 rounded-full bg-white/20 text-white text-[11px] font-semibold tracking-wide uppercase">
-              Milestone 9 Active • Wardrobe Insights & Dashboard
+              Milestone 10 Active • Planner & Smart Wardrobe
             </span>
             <h1 className="text-3xl md:text-4xl font-bold font-[var(--font-heading)] mt-3 mb-2">
               Welcome back, {user?.name}!
@@ -106,6 +107,13 @@ export default function DashboardPage() {
             >
               <Wand2 className="w-3.5 h-3.5" />
               <span>AI Stylist</span>
+            </Link>
+            <Link
+              to="/planner"
+              className="px-4 py-2.5 rounded-xl text-xs font-bold text-white bg-white/20 hover:bg-white/30 border border-white/30 transition-all flex items-center space-x-1.5"
+            >
+              <Calendar className="w-3.5 h-3.5" />
+              <span>Planner</span>
             </Link>
             <Link
               to="/insights"

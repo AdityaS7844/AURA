@@ -16,6 +16,7 @@ from app.routers.wardrobe import router as wardrobe_router
 from app.routers.weather import router as weather_router
 from app.routers.outfits import router as outfits_router
 from app.routers.insights import router as insights_router
+from app.routers.planner import router as planner_router
 
 settings = get_settings()
 
@@ -72,6 +73,10 @@ app.include_router(outfits_router, prefix="/outfits", tags=["Outfits"])
 # Insights Router
 app.include_router(insights_router, prefix="/api/v1/insights", tags=["Insights"])
 app.include_router(insights_router, prefix="/insights", tags=["Insights"])
+
+# Planner Router
+app.include_router(planner_router, prefix="/api/v1/planner", tags=["Planner"])
+app.include_router(planner_router, prefix="/planner", tags=["Planner"])
 
 
 # Static Image Serving (Section H of 04_API.txt)

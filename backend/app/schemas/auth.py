@@ -23,6 +23,10 @@ class ChangePasswordRequest(BaseModel):
     new_password: str = Field(..., min_length=8, description="New password minimum 8 characters")
 
 
+class UserUpdateRequest(BaseModel):
+    name: Optional[str] = Field(default=None, min_length=1, max_length=100, description="Updated display name")
+
+
 class UserOut(BaseModel):
     id: int
     name: str

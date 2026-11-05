@@ -11,6 +11,7 @@ export default function AppLayout({ children }) {
     { name: 'Dashboard', to: '/', icon: LayoutDashboard },
     { name: 'My Wardrobe', to: '/wardrobe', icon: Shirt },
     { name: 'AI Stylist', to: '/stylist', icon: Wand2 },
+    { name: 'Outfit Planner', to: '/planner', icon: Calendar },
     { name: 'Saved Outfits', to: '/saved', icon: Bookmark },
     { name: 'Insights', to: '/insights', icon: BarChart3 },
     { name: 'Profile & Settings', to: '/profile', icon: User },

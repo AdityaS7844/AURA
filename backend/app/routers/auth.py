@@ -13,6 +13,7 @@ from app.schemas.auth import (
     RegisterRequest,
     LoginRequest,
     ChangePasswordRequest,
+    UserUpdateRequest,
     UserOut,
     TokenResponse,
 )
@@ -135,6 +136,22 @@ def login(request: LoginRequest, db: Session = Depends(get_db)):
 @router.get("/me", response_model=UserOut)
 def get_me(current_user: User = Depends(get_current_user)):
     """Returns the profile of the currently authenticated user."""
+    return UserOut.model_validate(current_user)
+
+
+@router.patch("/me", response_model=UserOut)
+def update_me(
+    request: UserUpdateRequest,
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    """Updates profile details (e.g. display name) for the authenticated user."""
+    if request.name is not None:
+        clean_name = request.name.strip()
+        if clean_name:
+            current_user.name = clean_name
+    db.commit()
+    db.refresh(current_user)
     return UserOut.model_validate(current_user)
 
 

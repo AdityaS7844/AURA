@@ -6,6 +6,7 @@ from app.routers.wardrobe import router as wardrobe_router
 from app.routers.weather import router as weather_router
 from app.routers.outfits import router as outfits_router
 from app.routers.insights import router as insights_router
+from app.routers.planner import router as planner_router
 
 __all__ = [
     "auth_router",
@@ -14,5 +15,6 @@ __all__ = [
     "weather_router",
     "outfits_router",
     "insights_router",
+    "planner_router",
     "get_current_user",
 ]

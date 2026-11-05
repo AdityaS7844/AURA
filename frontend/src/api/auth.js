@@ -28,6 +28,15 @@ export const getMeApi = async () => {
 };
 
 /**
+ * Update current user profile (name)
+ * PATCH /api/v1/auth/me
+ */
+export const updateUserApi = async ({ name }) => {
+  const response = await api.patch('/auth/me', { name });
+  return response.data;
+};
+
+/**
  * Change current user password
  * PUT /api/v1/auth/change-password
  */
