@@ -12,6 +12,7 @@ import AddEditItemPage from './pages/AddEditItemPage';
 import ItemDetailPage from './pages/ItemDetailPage';
 import StylistPage from './pages/StylistPage';
 import SavedOutfitsPage from './pages/SavedOutfitsPage';
+import InsightsPage from './pages/InsightsPage';
 
 export default function App() {
   return (
@@ -98,6 +99,16 @@ export default function App() {
             element={
               <ProtectedRoute>
                 <SavedOutfitsPage />
+              </ProtectedRoute>
+            }
+          />
+
+          {/* Insights Routes (Milestone 9) */}
+          <Route
+            path="/insights"
+            element={
+              <ProtectedRoute>
+                <InsightsPage />
               </ProtectedRoute>
             }
           />

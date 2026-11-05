@@ -30,6 +30,7 @@ from app.schemas.outfit import (
     OutfitOut,
     SuggestResponse,
 )
+from app.schemas.insight import InsightsSummaryOut
 
 __all__ = [
     "RegisterRequest",
@@ -54,4 +55,5 @@ __all__ = [
     "GeminiStructuredResponse",
     "OutfitOut",
     "SuggestResponse",
+    "InsightsSummaryOut",
 ]

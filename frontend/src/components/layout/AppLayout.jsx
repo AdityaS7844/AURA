@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { NavLink, Link } from 'react-router-dom';
-import { Sparkles, LayoutDashboard, Shirt, Wand2, Calendar, Bookmark, User, LogOut, Menu, X } from 'lucide-react';
+import { Sparkles, LayoutDashboard, Shirt, Wand2, Calendar, Bookmark, BarChart3, User, LogOut, Menu, X } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 
 export default function AppLayout({ children }) {
@@ -12,6 +12,7 @@ export default function AppLayout({ children }) {
     { name: 'My Wardrobe', to: '/wardrobe', icon: Shirt },
     { name: 'AI Stylist', to: '/stylist', icon: Wand2 },
     { name: 'Saved Outfits', to: '/saved', icon: Bookmark },
+    { name: 'Insights', to: '/insights', icon: BarChart3 },
     { name: 'Profile & Settings', to: '/profile', icon: User },
   ];
 
