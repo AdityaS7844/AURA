@@ -5,6 +5,7 @@ Strictly adheres to 00_PROJECT_OVERVIEW.txt, 05_BACKEND.txt, and 06_GEMINI_INTEG
 """
 
 import json
+import asyncio
 from typing import Dict, Any, List, Optional
 from fastapi import HTTPException, status
 from pydantic import ValidationError
@@ -95,8 +96,9 @@ class GeminiService:
             f"2. Every outfit MUST contain either: (at least one top AND at least one bottom) OR a dress.\n"
             f"3. Do not duplicate item IDs within any single outfit.\n"
         )
-        if context['request']['anchor_item_id']:
-            prompt += f"4. Item ID {context['request']['anchor_item_id']} is the anchor item and MUST be included in every single recommendation.\n"
+        anchor_id = context.get('request', {}).get('anchor_item_id')
+        if anchor_id:
+            prompt += f"4. Item ID {anchor_id} is the anchor item and MUST be included in every single recommendation.\n"
 
         prompt += (
             "Return strictly valid JSON adhering to the required response schema with match_score (0-100), "
@@ -108,39 +110,45 @@ class GeminiService:
     async def generate_recommendations(cls, context: Dict[str, Any]) -> GeminiStructuredResponse:
         """
         Calls Gemini API with structured JSON output enforcement and parses the result.
+        Supports automatic fallback across available Flash models.
         """
         client = cls.get_client()
         user_prompt = cls.build_prompt(context)
-        model_name = settings.GEMINI_MODEL or "gemini-2.5-flash"
+        preferred = settings.GEMINI_MODEL or "gemini-3-flash-preview"
+        deprecated_models = {"gemini-2.5-flash", "gemini-2.5-pro", "gemini-2.0-flash", "gemini-1.5-flash"}
 
-        try:
-            response = client.models.generate_content(
-                model=model_name,
-                contents=user_prompt,
-                config=types.GenerateContentConfig(
-                    system_instruction=SYSTEM_INSTRUCTION,
-                    response_mime_type="application/json",
-                    response_schema=GeminiStructuredResponse,
-                    temperature=0.4,
-                ),
-            )
-        except Exception as exc:
-            raise HTTPException(
-                status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
-                detail=f"Gemini AI service unavailable or timed out: {str(exc)}",
-            ) from exc
+        candidate_models = []
+        for m in [preferred, "gemini-3-flash-preview", "gemini-3.5-flash-lite", "gemini-flash-latest"]:
+            if m and m not in deprecated_models and m not in candidate_models:
+                candidate_models.append(m)
+        if not candidate_models:
+            candidate_models = ["gemini-3-flash-preview", "gemini-3.5-flash-lite"]
 
-        if not response or not response.text:
-            raise HTTPException(
-                status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
-                detail="Empty response received from Gemini AI stylist.",
-            )
+        last_error = None
+        for model_name in candidate_models:
+            try:
+                response = await asyncio.to_thread(
+                    client.models.generate_content,
+                    model=model_name,
+                    contents=user_prompt,
+                    config=types.GenerateContentConfig(
+                        system_instruction=SYSTEM_INSTRUCTION,
+                        response_mime_type="application/json",
+                        response_schema=GeminiStructuredResponse,
+                        temperature=0.4,
+                    ),
+                )
+                if response and response.text:
+                    try:
+                        return GeminiStructuredResponse.model_validate_json(response.text)
+                    except ValidationError as val_err:
+                        last_error = f"Malformed schema from {model_name}: {val_err}"
+                        continue
+            except Exception as exc:
+                last_error = str(exc)
+                continue
 
-        try:
-            parsed = GeminiStructuredResponse.model_validate_json(response.text)
-            return parsed
-        except ValidationError as val_err:
-            raise HTTPException(
-                status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
-                detail="Gemini AI returned a malformed response schema.",
-            ) from val_err
+        raise HTTPException(
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+            detail=f"Gemini AI service unavailable: {last_error}",
+        )

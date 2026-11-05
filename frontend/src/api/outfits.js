@@ -25,7 +25,9 @@ export async function suggestOutfitsApi({
   if (style) payload.style = style;
   if (anchor_item_id) payload.anchor_item_id = parseInt(anchor_item_id, 10);
 
-  const response = await client.post('/outfits/suggest', payload);
+  const response = await client.post('/outfits/suggest', payload, {
+    timeout: 60000,
+  });
   return response.data;
 }
 
