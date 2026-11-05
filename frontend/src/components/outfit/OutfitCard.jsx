@@ -1,11 +1,43 @@
 import React, { useState } from 'react';
-import { Sparkles, Shirt, Eye, ThumbsUp, ThumbsDown, Bookmark, Check } from 'lucide-react';
+import { Sparkles, Shirt, Eye, ThumbsUp, ThumbsDown, Bookmark, Check, CalendarCheck } from 'lucide-react';
 import OutfitDetailModal from './OutfitDetailModal';
+import { submitFeedbackApi } from '../../api/outfits';
 
-export default function OutfitCard({ outfit }) {
+export default function OutfitCard({ outfit: initialOutfit, onUpdate }) {
+  const [outfit, setOutfit] = useState(initialOutfit);
   const [isDetailOpen, setIsDetailOpen] = useState(false);
+  const [actionLoading, setActionLoading] = useState(false);
+  const [justWorn, setJustWorn] = useState(false);
 
-  // Group items by count for neat collage layout
+  // Sync state if initialOutfit prop changes
+  React.useEffect(() => {
+    setOutfit(initialOutfit);
+  }, [initialOutfit]);
+
+  const handleFeedback = async (action) => {
+    try {
+      setActionLoading(true);
+      const res = await submitFeedbackApi(outfit.id, action);
+      if (res.outfit) {
+        setOutfit(res.outfit);
+        if (onUpdate) onUpdate(res.outfit);
+      }
+      if (action === 'worn') {
+        setJustWorn(true);
+        setTimeout(() => setJustWorn(false), 3000);
+      }
+    } catch (err) {
+      console.error(`Failed to submit ${action} feedback:`, err);
+    } finally {
+      setActionLoading(false);
+    }
+  };
+
+  const handleSaveToggle = () => {
+    const nextAction = outfit.is_saved ? 'unsave' : 'save';
+    handleFeedback(nextAction);
+  };
+
   const items = outfit.items || [];
   const itemCount = items.length;
 
@@ -109,29 +141,77 @@ export default function OutfitCard({ outfit }) {
             ))}
           </div>
 
-          {/* Action Bar (Feedback / Saved placeholders for M8) */}
+          {/* Action Bar with Live M8 Feedback */}
           <div className="pt-3 border-t border-[var(--color-aura-border)] flex items-center justify-between">
             <div className="flex items-center space-x-1">
+              {/* Like Button */}
               <button
-                disabled
-                title="Feedback actions unlock in Milestone 8"
-                className="p-2 rounded-xl text-[var(--color-aura-muted)] hover:bg-gray-100 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+                type="button"
+                disabled={actionLoading}
+                onClick={() => handleFeedback('like')}
+                title={outfit.feedback === 'like' ? 'Liked' : 'Like outfit'}
+                className={`p-2 rounded-xl transition-all cursor-pointer ${
+                  outfit.feedback === 'like'
+                    ? 'bg-emerald-50 text-emerald-600 border border-emerald-200 shadow-2xs'
+                    : 'text-[var(--color-aura-muted)] hover:bg-gray-100 hover:text-emerald-600'
+                }`}
               >
-                <ThumbsUp className="w-3.5 h-3.5" />
+                <ThumbsUp className={`w-3.5 h-3.5 ${outfit.feedback === 'like' ? 'fill-current' : ''}`} />
               </button>
+
+              {/* Dislike Button */}
               <button
-                disabled
-                title="Feedback actions unlock in Milestone 8"
-                className="p-2 rounded-xl text-[var(--color-aura-muted)] hover:bg-gray-100 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+                type="button"
+                disabled={actionLoading}
+                onClick={() => handleFeedback('dislike')}
+                title={outfit.feedback === 'dislike' ? 'Disliked' : 'Dislike outfit'}
+                className={`p-2 rounded-xl transition-all cursor-pointer ${
+                  outfit.feedback === 'dislike'
+                    ? 'bg-rose-50 text-rose-600 border border-rose-200 shadow-2xs'
+                    : 'text-[var(--color-aura-muted)] hover:bg-gray-100 hover:text-rose-600'
+                }`}
               >
-                <ThumbsDown className="w-3.5 h-3.5" />
+                <ThumbsDown className={`w-3.5 h-3.5 ${outfit.feedback === 'dislike' ? 'fill-current' : ''}`} />
               </button>
+
+              {/* Save / Bookmark Button */}
               <button
-                disabled
-                title="Saving outfits unlocks in Milestone 8"
-                className="p-2 rounded-xl text-[var(--color-aura-muted)] hover:bg-gray-100 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+                type="button"
+                disabled={actionLoading}
+                onClick={handleSaveToggle}
+                title={outfit.is_saved ? 'Saved to collection (click to remove)' : 'Save outfit'}
+                className={`p-2 rounded-xl transition-all cursor-pointer ${
+                  outfit.is_saved
+                    ? 'bg-[var(--color-aura-lavender)] text-[var(--color-aura-primary)] border border-[var(--color-aura-primary)]/30 shadow-2xs'
+                    : 'text-[var(--color-aura-muted)] hover:bg-gray-100 hover:text-[var(--color-aura-primary)]'
+                }`}
               >
-                <Bookmark className="w-3.5 h-3.5" />
+                <Bookmark className={`w-3.5 h-3.5 ${outfit.is_saved ? 'fill-current' : ''}`} />
+              </button>
+
+              {/* I Wore This Button */}
+              <button
+                type="button"
+                disabled={actionLoading}
+                onClick={() => handleFeedback('worn')}
+                title="Mark this outfit as worn today (updates item wear counts)"
+                className={`px-2 py-1 rounded-xl text-[10px] font-bold flex items-center space-x-1 transition-all cursor-pointer ${
+                  justWorn
+                    ? 'bg-emerald-500 text-white'
+                    : 'text-[var(--color-aura-muted)] hover:bg-gray-100 hover:text-[var(--color-aura-text)]'
+                }`}
+              >
+                {justWorn ? (
+                  <>
+                    <Check className="w-3 h-3" />
+                    <span>Worn!</span>
+                  </>
+                ) : (
+                  <>
+                    <CalendarCheck className="w-3 h-3" />
+                    <span className="hidden sm:inline">Worn</span>
+                  </>
+                )}
               </button>
             </div>
 
@@ -152,6 +232,10 @@ export default function OutfitCard({ outfit }) {
         outfit={outfit}
         isOpen={isDetailOpen}
         onClose={() => setIsDetailOpen(false)}
+        onUpdate={(updated) => {
+          setOutfit(updated);
+          if (onUpdate) onUpdate(updated);
+        }}
       />
     </>
   );

@@ -32,3 +32,4 @@ class Outfit(Base):
 
     user = relationship("User", back_populates="outfits")
     items = relationship("ClothingItem", secondary=outfit_items, back_populates="outfits")
+    feedbacks = relationship("Feedback", back_populates="outfit", cascade="all, delete-orphan")

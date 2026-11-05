@@ -11,6 +11,7 @@ import WardrobePage from './pages/WardrobePage';
 import AddEditItemPage from './pages/AddEditItemPage';
 import ItemDetailPage from './pages/ItemDetailPage';
 import StylistPage from './pages/StylistPage';
+import SavedOutfitsPage from './pages/SavedOutfitsPage';
 
 export default function App() {
   return (
@@ -87,6 +88,16 @@ export default function App() {
             element={
               <ProtectedRoute>
                 <StylistPage />
+              </ProtectedRoute>
+            }
+          />
+
+          {/* Saved Outfits Routes (Milestone 8) */}
+          <Route
+            path="/saved"
+            element={
+              <ProtectedRoute>
+                <SavedOutfitsPage />
               </ProtectedRoute>
             }
           />

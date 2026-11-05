@@ -1,8 +1,35 @@
-import React from 'react';
-import { X, Sparkles, Shirt, ThumbsUp, ThumbsDown, Bookmark, CheckCheck, Thermometer } from 'lucide-react';
+import React, { useState } from 'react';
+import { X, Sparkles, Shirt, ThumbsUp, ThumbsDown, Bookmark, Check, CalendarCheck } from 'lucide-react';
+import { submitFeedbackApi } from '../../api/outfits';
 
-export default function OutfitDetailModal({ outfit, isOpen, onClose }) {
+export default function OutfitDetailModal({ outfit, isOpen, onClose, onUpdate }) {
   if (!isOpen || !outfit) return null;
+
+  const [loading, setLoading] = useState(false);
+  const [justWorn, setJustWorn] = useState(false);
+
+  const handleAction = async (action) => {
+    try {
+      setLoading(true);
+      const res = await submitFeedbackApi(outfit.id, action);
+      if (res.outfit && onUpdate) {
+        onUpdate(res.outfit);
+      }
+      if (action === 'worn') {
+        setJustWorn(true);
+        setTimeout(() => setJustWorn(false), 3000);
+      }
+    } catch (err) {
+      console.error(`Failed to execute ${action} on outfit #${outfit.id}:`, err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleSaveToggle = () => {
+    const nextAction = outfit.is_saved ? 'unsave' : 'save';
+    handleAction(nextAction);
+  };
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs animate-in fade-in duration-200">
@@ -89,6 +116,12 @@ export default function OutfitDetailModal({ outfit, isOpen, onClose }) {
                       </div>
                       <span>•</span>
                       <span>Warmth {item.warmth}/5</span>
+                      {item.times_worn > 0 && (
+                        <>
+                          <span>•</span>
+                          <span className="text-emerald-600 font-semibold">Worn {item.times_worn}×</span>
+                        </>
+                      )}
                     </div>
                   </div>
                 </div>
@@ -101,32 +134,69 @@ export default function OutfitDetailModal({ outfit, isOpen, onClose }) {
         <div className="p-4 border-t border-[var(--color-aura-border)] bg-[var(--color-aura-page)] flex flex-wrap items-center justify-between gap-3">
           <div className="flex items-center space-x-2">
             <button
-              disabled
-              title="Coming in Milestone 8"
-              className="px-3 py-1.5 rounded-xl border border-[var(--color-aura-border)] bg-[var(--color-aura-surface)] text-[var(--color-aura-muted)] text-xs font-semibold flex items-center space-x-1.5 opacity-60 cursor-not-allowed"
+              type="button"
+              disabled={loading}
+              onClick={() => handleAction('like')}
+              className={`px-3 py-1.5 rounded-xl border text-xs font-semibold flex items-center space-x-1.5 transition-all cursor-pointer ${
+                outfit.feedback === 'like'
+                  ? 'bg-emerald-50 text-emerald-600 border-emerald-200 shadow-2xs'
+                  : 'bg-[var(--color-aura-surface)] border-[var(--color-aura-border)] text-[var(--color-aura-muted)] hover:text-emerald-600'
+              }`}
             >
-              <ThumbsUp className="w-3.5 h-3.5" />
+              <ThumbsUp className={`w-3.5 h-3.5 ${outfit.feedback === 'like' ? 'fill-current' : ''}`} />
               <span>Like</span>
             </button>
+
             <button
-              disabled
-              title="Coming in Milestone 8"
-              className="px-3 py-1.5 rounded-xl border border-[var(--color-aura-border)] bg-[var(--color-aura-surface)] text-[var(--color-aura-muted)] text-xs font-semibold flex items-center space-x-1.5 opacity-60 cursor-not-allowed"
+              type="button"
+              disabled={loading}
+              onClick={() => handleAction('dislike')}
+              className={`px-3 py-1.5 rounded-xl border text-xs font-semibold flex items-center space-x-1.5 transition-all cursor-pointer ${
+                outfit.feedback === 'dislike'
+                  ? 'bg-rose-50 text-rose-600 border-rose-200 shadow-2xs'
+                  : 'bg-[var(--color-aura-surface)] border-[var(--color-aura-border)] text-[var(--color-aura-muted)] hover:text-rose-600'
+              }`}
             >
-              <ThumbsDown className="w-3.5 h-3.5" />
+              <ThumbsDown className={`w-3.5 h-3.5 ${outfit.feedback === 'dislike' ? 'fill-current' : ''}`} />
               <span>Dislike</span>
             </button>
+
             <button
-              disabled
-              title="Coming in Milestone 8"
-              className="px-3 py-1.5 rounded-xl border border-[var(--color-aura-border)] bg-[var(--color-aura-surface)] text-[var(--color-aura-muted)] text-xs font-semibold flex items-center space-x-1.5 opacity-60 cursor-not-allowed"
+              type="button"
+              disabled={loading}
+              onClick={handleSaveToggle}
+              className={`px-3 py-1.5 rounded-xl border text-xs font-semibold flex items-center space-x-1.5 transition-all cursor-pointer ${
+                outfit.is_saved
+                  ? 'bg-[var(--color-aura-lavender)] text-[var(--color-aura-primary)] border-[var(--color-aura-primary)]/40 shadow-2xs'
+                  : 'bg-[var(--color-aura-surface)] border-[var(--color-aura-border)] text-[var(--color-aura-muted)] hover:text-[var(--color-aura-primary)]'
+              }`}
             >
-              <Bookmark className="w-3.5 h-3.5" />
-              <span>Save</span>
+              <Bookmark className={`w-3.5 h-3.5 ${outfit.is_saved ? 'fill-current' : ''}`} />
+              <span>{outfit.is_saved ? 'Saved' : 'Save'}</span>
             </button>
-            <span className="text-[10px] text-[var(--color-aura-muted)] italic hidden sm:inline">
-              (Feedback & Saving activates in M8)
-            </span>
+
+            <button
+              type="button"
+              disabled={loading}
+              onClick={() => handleAction('worn')}
+              className={`px-3 py-1.5 rounded-xl border text-xs font-bold flex items-center space-x-1.5 transition-all cursor-pointer ${
+                justWorn
+                  ? 'bg-emerald-500 text-white border-emerald-500'
+                  : 'bg-[var(--color-aura-surface)] border-[var(--color-aura-border)] text-[var(--color-aura-muted)] hover:text-[var(--color-aura-text)]'
+              }`}
+            >
+              {justWorn ? (
+                <>
+                  <Check className="w-3.5 h-3.5" />
+                  <span>Worn Today!</span>
+                </>
+              ) : (
+                <>
+                  <CalendarCheck className="w-3.5 h-3.5" />
+                  <span>I Wore This Today</span>
+                </>
+              )}
+            </button>
           </div>
 
           <button

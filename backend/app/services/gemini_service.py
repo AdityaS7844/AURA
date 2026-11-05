@@ -100,6 +100,15 @@ class GeminiService:
         if anchor_id:
             prompt += f"4. Item ID {anchor_id} is the anchor item and MUST be included in every single recommendation.\n"
 
+        if context.get('feedback_context'):
+            fb = context['feedback_context']
+            prompt += (
+                f"RECENT FEEDBACK PREFERENCES: User liked: {fb.get('recently_liked_outfits', [])} "
+                f"and disliked: {fb.get('recently_disliked_outfits', [])}. "
+                "Use this feedback for stylistic inspiration, but ALWAYS prioritize the explicit occasion, "
+                "weather, and style request.\n"
+            )
+
         prompt += (
             "Return strictly valid JSON adhering to the required response schema with match_score (0-100), "
             "occasion, reason, and item_ids."

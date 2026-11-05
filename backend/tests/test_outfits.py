@@ -408,3 +408,255 @@ def test_context_and_prompt_builders():
     prompt = GeminiService.build_prompt(context)
     assert "Item ID 1 is the anchor item and MUST be included" in prompt
     assert "occasion 'work'" in prompt
+
+
+@patch.object(GeminiService, "generate_recommendations", new_callable=AsyncMock)
+def test_feedback_like_dislike_mutual_exclusivity(mock_gemini):
+    """Verifies that like and dislike are mutually exclusive and toggle correctly."""
+    token, _ = create_user_with_token("Feedback User")
+    top = add_clothing_item(token, "top", "Feedback Tee")
+    bottom = add_clothing_item(token, "bottom", "Feedback Jeans")
+
+    mock_gemini.return_value = GeminiStructuredResponse(
+        recommendations=[
+            GeminiRecommendationItem(
+                name="Likeable Look",
+                item_ids=[top, bottom],
+                reason="Clean look.",
+                style="casual",
+                occasion="casual",
+                match_score=90,
+            )
+        ]
+    )
+
+    suggest_resp = client.post(
+        "/api/v1/outfits/suggest",
+        headers={"Authorization": f"Bearer {token}"},
+        json={"occasion": "casual", "temp_c": 22.0},
+    )
+    assert suggest_resp.status_code == 200
+    outfit_id = suggest_resp.json()["outfits"][0]["id"]
+
+    # 1. Like outfit
+    r_like = client.post(
+        f"/api/v1/outfits/{outfit_id}/feedback",
+        headers={"Authorization": f"Bearer {token}"},
+        json={"action": "like"},
+    )
+    assert r_like.status_code == 200
+    assert r_like.json()["outfit"]["feedback"] == "like"
+
+    # 2. Dislike outfit -> overrides like (mutually exclusive)
+    r_dislike = client.post(
+        f"/api/v1/outfits/{outfit_id}/feedback",
+        headers={"Authorization": f"Bearer {token}"},
+        json={"action": "dislike"},
+    )
+    assert r_dislike.status_code == 200
+    assert r_dislike.json()["outfit"]["feedback"] == "dislike"
+
+    # 3. Dislike again -> toggles off
+    r_toggle = client.post(
+        f"/api/v1/outfits/{outfit_id}/feedback",
+        headers={"Authorization": f"Bearer {token}"},
+        json={"action": "dislike"},
+    )
+    assert r_toggle.status_code == 200
+    assert r_toggle.json()["outfit"]["feedback"] is None
+
+
+@patch.object(GeminiService, "generate_recommendations", new_callable=AsyncMock)
+def test_feedback_save_and_unsave(mock_gemini):
+    """Verifies bookmarking (save) and un-bookmarking (unsave)."""
+    token, _ = create_user_with_token("Save User")
+    top = add_clothing_item(token, "top", "Save Top")
+    bottom = add_clothing_item(token, "bottom", "Save Pants")
+
+    mock_gemini.return_value = GeminiStructuredResponse(
+        recommendations=[
+            GeminiRecommendationItem(
+                name="Savable Look",
+                item_ids=[top, bottom],
+                reason="Great look.",
+                style="casual",
+                occasion="casual",
+                match_score=85,
+            )
+        ]
+    )
+
+    s_resp = client.post(
+        "/api/v1/outfits/suggest",
+        headers={"Authorization": f"Bearer {token}"},
+        json={"occasion": "casual", "temp_c": 20.0},
+    )
+    outfit_id = s_resp.json()["outfits"][0]["id"]
+
+    # Save outfit
+    r_save = client.post(
+        f"/api/v1/outfits/{outfit_id}/feedback",
+        headers={"Authorization": f"Bearer {token}"},
+        json={"action": "save"},
+    )
+    assert r_save.status_code == 200
+    assert r_save.json()["outfit"]["is_saved"] is True
+
+    # Appears in saved list
+    r_list = client.get(
+        "/api/v1/outfits/saved?type=saved",
+        headers={"Authorization": f"Bearer {token}"},
+    )
+    assert r_list.status_code == 200
+    assert r_list.json()["total"] >= 1
+    assert any(o["id"] == outfit_id for o in r_list.json()["outfits"])
+
+    # Unsave outfit
+    r_unsave = client.post(
+        f"/api/v1/outfits/{outfit_id}/feedback",
+        headers={"Authorization": f"Bearer {token}"},
+        json={"action": "unsave"},
+    )
+    assert r_unsave.status_code == 200
+    assert r_unsave.json()["outfit"]["is_saved"] is False
+
+
+@patch.object(GeminiService, "generate_recommendations", new_callable=AsyncMock)
+def test_feedback_worn_increments_wear_count(mock_gemini):
+    """Verifies that 'worn' feedback increments times_worn on all items in the outfit."""
+    token, _ = create_user_with_token("Worn User")
+    top_id = add_clothing_item(token, "top", "Worn Top")
+    bottom_id = add_clothing_item(token, "bottom", "Worn Pants")
+
+    mock_gemini.return_value = GeminiStructuredResponse(
+        recommendations=[
+            GeminiRecommendationItem(
+                name="Worn Outfit Today",
+                item_ids=[top_id, bottom_id],
+                reason="Good daily wear.",
+                style="casual",
+                occasion="casual",
+                match_score=88,
+            )
+        ]
+    )
+
+    s_resp = client.post(
+        "/api/v1/outfits/suggest",
+        headers={"Authorization": f"Bearer {token}"},
+        json={"occasion": "casual", "temp_c": 20.0},
+    )
+    outfit_id = s_resp.json()["outfits"][0]["id"]
+
+    # Mark as worn
+    r_worn = client.post(
+        f"/api/v1/outfits/{outfit_id}/feedback",
+        headers={"Authorization": f"Bearer {token}"},
+        json={"action": "worn"},
+    )
+    assert r_worn.status_code == 200
+
+    # Verify times_worn incremented on items
+    item_top = client.get(f"/api/v1/wardrobe/items/{top_id}", headers={"Authorization": f"Bearer {token}"}).json()
+    item_bottom = client.get(f"/api/v1/wardrobe/items/{bottom_id}", headers={"Authorization": f"Bearer {token}"}).json()
+
+    assert item_top["times_worn"] == 1
+    assert item_bottom["times_worn"] == 1
+    assert item_top["last_worn"] is not None
+    assert item_bottom["last_worn"] is not None
+
+
+@patch.object(GeminiService, "generate_recommendations", new_callable=AsyncMock)
+def test_saved_liked_and_history_lists(mock_gemini):
+    """Verifies that GET /outfits/saved respects type=saved, type=liked, and type=history."""
+    token, _ = create_user_with_token("Multi Tab User")
+    top = add_clothing_item(token, "top", "Tab Top")
+    bottom = add_clothing_item(token, "bottom", "Tab Bottom")
+
+    mock_gemini.return_value = GeminiStructuredResponse(
+        recommendations=[
+            GeminiRecommendationItem(
+                name="Tab Outfit 1",
+                item_ids=[top, bottom],
+                reason="Tab test.",
+                style="casual",
+                occasion="casual",
+                match_score=80,
+            )
+        ]
+    )
+
+    s_resp = client.post(
+        "/api/v1/outfits/suggest",
+        headers={"Authorization": f"Bearer {token}"},
+        json={"occasion": "casual", "temp_c": 20.0},
+    )
+    outfit_id = s_resp.json()["outfits"][0]["id"]
+
+    # Like the outfit
+    client.post(
+        f"/api/v1/outfits/{outfit_id}/feedback",
+        headers={"Authorization": f"Bearer {token}"},
+        json={"action": "like"},
+    )
+
+    # 1. Liked list has this outfit
+    r_liked = client.get(
+        "/api/v1/outfits/saved?type=liked",
+        headers={"Authorization": f"Bearer {token}"},
+    )
+    assert r_liked.status_code == 200
+    assert any(o["id"] == outfit_id for o in r_liked.json()["outfits"])
+
+    # 2. Saved list does NOT have it yet
+    r_saved = client.get(
+        "/api/v1/outfits/saved?type=saved",
+        headers={"Authorization": f"Bearer {token}"},
+    )
+    assert r_saved.status_code == 200
+    assert not any(o["id"] == outfit_id for o in r_saved.json()["outfits"])
+
+    # 3. History list has it
+    r_hist = client.get(
+        "/api/v1/outfits/saved?type=history",
+        headers={"Authorization": f"Bearer {token}"},
+    )
+    assert r_hist.status_code == 200
+    assert any(o["id"] == outfit_id for o in r_hist.json()["outfits"])
+
+
+@patch.object(GeminiService, "generate_recommendations", new_callable=AsyncMock)
+def test_feedback_cross_user_forbidden(mock_gemini):
+    """User B cannot submit feedback on User A's outfit."""
+    token_a, _ = create_user_with_token("Owner User A")
+    token_b, _ = create_user_with_token("Intruder User B")
+
+    top = add_clothing_item(token_a, "top", "Top A")
+    bottom = add_clothing_item(token_a, "bottom", "Bottom A")
+
+    mock_gemini.return_value = GeminiStructuredResponse(
+        recommendations=[
+            GeminiRecommendationItem(
+                name="Private Look",
+                item_ids=[top, bottom],
+                reason="Private.",
+                style="casual",
+                occasion="casual",
+                match_score=80,
+            )
+        ]
+    )
+
+    s_resp = client.post(
+        "/api/v1/outfits/suggest",
+        headers={"Authorization": f"Bearer {token_a}"},
+        json={"occasion": "casual", "temp_c": 20.0},
+    )
+    outfit_id = s_resp.json()["outfits"][0]["id"]
+
+    resp = client.post(
+        f"/api/v1/outfits/{outfit_id}/feedback",
+        headers={"Authorization": f"Bearer {token_b}"},
+        json={"action": "like"},
+    )
+    assert resp.status_code == 403

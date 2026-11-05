@@ -39,3 +39,23 @@ export async function getOutfitApi(outfitId) {
   const response = await client.get(`/outfits/${outfitId}`);
   return response.data;
 }
+
+/**
+ * Submit feedback on an outfit: like | dislike | save | unsave | worn
+ * POST /api/v1/outfits/{id}/feedback
+ */
+export async function submitFeedbackApi(outfitId, action) {
+  const response = await client.post(`/outfits/${outfitId}/feedback`, { action });
+  return response.data;
+}
+
+/**
+ * List saved, liked, or history outfits with pagination
+ * GET /api/v1/outfits/saved?type=saved|liked|history&page=1&limit=10
+ */
+export async function getSavedOutfitsApi({ type = 'saved', page = 1, limit = 10 } = {}) {
+  const response = await client.get('/outfits/saved', {
+    params: { type, page, limit },
+  });
+  return response.data;
+}

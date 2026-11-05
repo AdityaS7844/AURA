@@ -42,6 +42,21 @@ class GeminiStructuredResponse(BaseModel):
     message: Optional[str] = Field(default="Outfit ideas based on your wardrobe.")
 
 
+ALLOWED_FEEDBACK_ACTIONS = {"like", "dislike", "save", "unsave", "worn"}
+
+
+class FeedbackRequest(BaseModel):
+    action: str = Field(..., description="Allowed actions: like | dislike | save | unsave | worn")
+
+    @field_validator("action")
+    @classmethod
+    def validate_action(cls, v: str) -> str:
+        clean = v.lower().strip()
+        if clean not in ALLOWED_FEEDBACK_ACTIONS:
+            raise ValueError(f"Invalid action '{v}'. Allowed actions: {sorted(list(ALLOWED_FEEDBACK_ACTIONS))}")
+        return clean
+
+
 # API Output Schemas matching 04_API.txt
 class OutfitOut(BaseModel):
     id: int
@@ -51,9 +66,22 @@ class OutfitOut(BaseModel):
     score: Optional[int] = None
     reason: Optional[str] = None
     feedback: Optional[str] = None
+    is_saved: bool = False
     created_at: Optional[datetime] = None
 
     model_config = ConfigDict(from_attributes=True)
+
+
+class FeedbackResponse(BaseModel):
+    detail: str
+    outfit: OutfitOut
+
+
+class SavedOutfitsResponse(BaseModel):
+    outfits: List[OutfitOut]
+    total: int
+    page: int
+    limit: int
 
 
 class SuggestResponse(BaseModel):
