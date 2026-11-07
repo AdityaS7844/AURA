@@ -1,0 +1,735 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>AURA — StarUML Architectural Diagrams</title>
+  <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+    body {
+      background-color: #ffffff;
+      color: #1a1a1a;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+      padding: 40px 20px;
+    }
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+    header {
+      border-bottom: 2px solid #2b2b2b;
+      padding-bottom: 20px;
+      margin-bottom: 40px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    h1 {
+      font-size: 28px;
+      font-weight: 800;
+      color: #111111;
+    }
+    .subtitle {
+      font-size: 14px;
+      color: #555555;
+      margin-top: 4px;
+    }
+    .print-btn {
+      padding: 8px 16px;
+      font-size: 13px;
+      font-weight: bold;
+      background-color: #ffffff;
+      border: 1.5px solid #2b2b2b;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .print-btn:hover {
+      background-color: #f5f5f5;
+    }
+    .diagram-card {
+      background: #ffffff;
+      border: 1.5px solid #d1d5db;
+      border-radius: 12px;
+      padding: 30px;
+      margin-bottom: 40px;
+      page-break-inside: avoid;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+    }
+    .diagram-card h2 {
+      font-size: 20px;
+      font-weight: 700;
+      color: #1f2937;
+      margin-bottom: 6px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .badge {
+      display: inline-block;
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      background: #f3f4f6;
+      border: 1px solid #d1d5db;
+      padding: 2px 8px;
+      border-radius: 4px;
+    }
+    .diagram-desc {
+      font-size: 13px;
+      color: #6b7280;
+      margin-bottom: 24px;
+    }
+    .mermaid-wrapper {
+      background: #ffffff;
+      border: 1px dashed #e5e7eb;
+      border-radius: 8px;
+      padding: 20px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      overflow-x: auto;
+    }
+    @media print {
+      body { padding: 0; }
+      .print-btn { display: none; }
+      .diagram-card { border: none; box-shadow: none; padding: 10px 0; }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <div>
+        <h1>AURA — System Design & Architecture Diagrams</h1>
+        <p class="subtitle">StarUML Standard White Background Representation • Google Gemini AI Personalized Wardrobe</p>
+      </div>
+      <button class="print-btn" onclick="window.print()">🖨️ Print / Save to PDF</button>
+    </header>
+
+    <!-- Diagram 1 -->
+    <section class="diagram-card">
+      <h2><span class="badge">01</span> Mind Map Diagram</h2>
+      <p class="diagram-desc">Hierarchical breakdown of core features, services, and domain components across AURA.</p>
+      <div class="mermaid-wrapper">
+        <div class="mermaid">
+flowchart LR
+    Root["AURA Smart Wardrobe"]
+    Root --> M1["User Management & Auth"]
+    Root --> M2["Digital Wardrobe Catalog"]
+    Root --> M3["Live Weather Intelligence"]
+    Root --> M4["AI Stylist Engine (Gemini 3 Flash)"]
+    Root --> M5["Outfit Planner & Calendar"]
+    Root --> M6["Analytics & Insights"]
+
+    M1 --> M1A["JWT Bearer Authentication"]
+    M1 --> M1B["Bcrypt Password Hashing"]
+    M1 --> M1C["User Style Preferences"]
+    M1 --> M1D["1-Click Demo Login"]
+
+    M2 --> M2A["6 Core Clothing Categories"]
+    M2 --> M2B["Multi-Attribute Tagging"]
+    M2 --> M2C["Secure Image Uploads"]
+    M2 --> M2D["Real-time Multi-Filter"]
+
+    M3 --> M3A["Open-Meteo Integration"]
+    M3 --> M3B["Temperature Classification"]
+    M3 --> M3C["Manual Temperature Override"]
+
+    M4 --> M4A["8 Occasion Taxonomies"]
+    M4 --> M4B["Hero Anchor Item Selector"]
+    M4 --> M4C["Strict SQLite ID Validation"]
+    M4 --> M4D["Feedback Learning Loop"]
+
+    M5 --> M5A["7-Day Weekly Grid (Mon-Sun)"]
+    M5 --> M5B["Duplicate Schedule Guard"]
+    M5 --> M5C["Custom Event Notes"]
+    M5 --> M5D["'Mark as Worn' Action"]
+
+    M6 --> M6A["Wardrobe Utilization Rate (%)"]
+    M6 --> M6B["Category Breakdown Progress"]
+    M6 --> M6C["Most-Worn Items Ranking"]
+    M6 --> M6D["Forgotten Gems Spotlight"]
+
+    classDef default fill:#ffffea,stroke:#2b2b2b,stroke-width:1.5px,color:#000000;
+    classDef rootNode fill:#ffe082,stroke:#2b2b2b,stroke-width:2px,font-weight:bold,color:#000000;
+    class Root rootNode;
+        </div>
+      </div>
+    </section>
+
+    <!-- Diagram 2 -->
+    <section class="diagram-card">
+      <h2><span class="badge">02</span> System Flowchart</h2>
+      <p class="diagram-desc">Operational flowchart showing the end-to-end outfit generation, Gemini validation, and user action pipeline.</p>
+      <div class="mermaid-wrapper">
+        <div class="mermaid">
+flowchart TD
+    Start(["[Start] User Requests Outfit Recommendation"]) --> AuthCheck{"Is User Authenticated?"}
+    AuthCheck -- "No" --> Redirect["Redirect to Landing / Login Page"]
+    AuthCheck -- "Yes" --> InputParams["User Selects Occasion, City & Optional Anchor Piece"]
+
+    InputParams --> GetWeather["Fetch Real-Time Weather (Open-Meteo API)"]
+    GetWeather --> WardrobeCheck{"Wardrobe Precondition Met?<br/>(Top+Bottom OR Dress)"}
+
+    WardrobeCheck -- "No" --> Err400["Return 400 Bad Request:<br/>Insufficient Clothes"]
+    WardrobeCheck -- "Yes" --> BuildPrompt["Assemble Structured Prompt Context:<br/>Owned Item IDs + Weather + Feedback Summary"]
+
+    BuildPrompt --> CallGemini["Execute Google Gemini 3 Flash<br/>via asyncio.to_thread"]
+    CallGemini --> ParseJSON{"Valid Structured JSON Received?"}
+
+    ParseJSON -- "No" --> FallbackRetry["Trigger Fallback Model / Return 503"]
+    ParseJSON -- "Yes" --> BackendValidation{"Strict Validation:<br/>1. All item IDs owned by user?<br/>2. Anchor piece included?<br/>3. Valid category composition?"}
+
+    BackendValidation -- "Fails" --> StripInvalid["Filter Out Disallowed / Invented IDs"]
+    StripInvalid --> ValidCountCheck{"Valid Outfits Remaining?"}
+    ValidCountCheck -- "No" --> FallbackRetry
+    ValidCountCheck -- "Yes" --> SaveDB[("INSERT Outfits & Items into SQLite DB")]
+
+    BackendValidation -- "Passes" --> SaveDB
+    SaveDB --> PresentUI["Render Outfit Cards with Actual Wardrobe Photos"]
+
+    PresentUI --> UserAction{"User Interaction"}
+    UserAction -->|"Like / Dislike"| ActFeedback[("Update feedback Table (Mutually Exclusive)")]
+    UserAction -->|"Save"| ActSave[("Add Bookmark to Saved Outfits")]
+    UserAction -->|"Schedule"| ActPlan[("Add to planned_outfits Calendar")]
+    UserAction -->|"I Wore This"| ActWorn[("Increment times_worn & Set last_worn Date")]
+
+    classDef default fill:#ffffea,stroke:#2b2b2b,stroke-width:1.5px,color:#000000;
+    classDef decision fill:#fff9c4,stroke:#2b2b2b,stroke-width:1.5px,color:#000000;
+    classDef terminal fill:#f5f5f5,stroke:#2b2b2b,stroke-width:2px,color:#000000;
+    classDef storage fill:#e1f5fe,stroke:#2b2b2b,stroke-width:1.5px,color:#000000;
+
+    class AuthCheck,WardrobeCheck,ParseJSON,BackendValidation,ValidCountCheck,UserAction decision;
+    class Start,Redirect,Err400,FallbackRetry terminal;
+    class SaveDB,ActFeedback,ActSave,ActPlan,ActWorn storage;
+        </div>
+      </div>
+    </section>
+
+    <!-- Diagram 3 -->
+    <section class="diagram-card">
+      <h2><span class="badge">03</span> Use Case Diagram</h2>
+      <p class="diagram-desc">StarUML actor and use case ellipse representation across authentication, wardrobe, styling, and planning.</p>
+      <div class="mermaid-wrapper">
+        <div class="mermaid">
+flowchart LR
+    User["<<Actor>><br/>User / Stylist"]
+    GeminiSys["<<Actor / Service>><br/>Google Gemini 3 Flash"]
+    WeatherSys["<<Actor / Service>><br/>Open-Meteo Weather API"]
+
+    subgraph SystemBoundary ["AURA Smart Wardrobe System"]
+        UC1(["UC-01: Register & Login (1-Click Demo)"])
+        UC2(["UC-02: Configure Preferences & City"])
+        UC3(["UC-03: Catalog & Tag Clothing Items"])
+        UC4(["UC-04: Multi-Attribute Wardrobe Filter"])
+        UC5(["UC-05: Select Occasion & Anchor Item"])
+        UC6(["UC-06: Fetch Live Weather Intelligence"])
+        UC7(["UC-07: Generate Validated Outfits"])
+        UC8(["UC-08: Like, Dislike & Save Outfits"])
+        UC9(["UC-09: Mark Outfit as Worn"])
+        UC10(["UC-10: Schedule Outfit on Calendar"])
+        UC11(["UC-11: Review Wardrobe Analytics & Gems"])
+        UC12(["UC-12: Delete Account with Confirmation"])
+    end
+
+    User --- UC1
+    User --- UC2
+    User --- UC3
+    User --- UC4
+    User --- UC5
+    User --- UC7
+    User --- UC8
+    User --- UC9
+    User --- UC10
+    User --- UC11
+    User --- UC12
+
+    UC7 -.->|"<<include>>"| UC6
+    UC6 --- WeatherSys
+    UC7 --- GeminiSys
+
+    classDef default fill:#ffffea,stroke:#2b2b2b,stroke-width:1.5px,color:#000000;
+    classDef actorNode fill:#ffffff,stroke:#2b2b2b,stroke-width:2px,color:#000000;
+    class User,GeminiSys,WeatherSys actorNode;
+        </div>
+      </div>
+    </section>
+
+    <!-- Diagram 4: DFD Level 0 -->
+    <section class="diagram-card">
+      <h2><span class="badge">04A</span> Data Flow Diagram (Level 0 - Context)</h2>
+      <p class="diagram-desc">High-level context showing system boundaries, external actors, and the SQLite datastore.</p>
+      <div class="mermaid-wrapper">
+        <div class="mermaid">
+flowchart LR
+    ExtUser["External Entity:<br/>User (Web Browser)"]
+    Process0["0.0<br/>AURA Core System<br/>(FastAPI Backend & React UI)"]
+    ExtWeather["External System:<br/>Open-Meteo Weather API"]
+    ExtGemini["External System:<br/>Google Gemini 3 Flash"]
+    StoreDB[("D1: SQLite Database<br/>(wardrobe.db)")]
+
+    ExtUser -->|"Credentials, Garment Data, Styling Requests, Feedback, Schedules"| Process0
+    Process0 -->|"Rendered Ensembles, Analytics, Calendar Schedule, Forecasts"| ExtUser
+
+    Process0 -->|"Geocoding & City Forecast Request"| ExtWeather
+    ExtWeather -->|"Temperature, Weather Condition, Rain Prob."| Process0
+
+    Process0 -->|"Owned Clothes JSON Context & Prompt"| ExtGemini
+    ExtGemini -->|"Structured Outfit Recommendation JSON"| Process0
+
+    Process0 <-->|"SQL CRUD Operations (Users, Clothes, Outfits, Feedback, Planner)"| StoreDB
+
+    classDef default fill:#ffffea,stroke:#2b2b2b,stroke-width:1.5px,color:#000000;
+    classDef entity fill:#f5f5f5,stroke:#2b2b2b,stroke-width:2px,color:#000000;
+    classDef db fill:#e1f5fe,stroke:#2b2b2b,stroke-width:1.5px,color:#000000;
+    class ExtUser,ExtWeather,ExtGemini entity;
+    class StoreDB db;
+        </div>
+      </div>
+    </section>
+
+    <!-- Diagram 4: DFD Level 1 -->
+    <section class="diagram-card">
+      <h2><span class="badge">04B</span> Data Flow Diagram (Level 1 - Functional Decomposition)</h2>
+      <p class="diagram-desc">Decomposed functional processes, inputs, outputs, and dedicated SQLite database tables.</p>
+      <div class="mermaid-wrapper">
+        <div class="mermaid">
+flowchart TD
+    User["User"]
+
+    P1["1.0<br/>Authentication & Profile Manager"]
+    P2["2.0<br/>Wardrobe Inventory Service"]
+    P3["3.0<br/>Weather Integration Adapter"]
+    P4["4.0<br/>Gemini Outfit Recommender"]
+    P5["5.0<br/>Feedback & Wear Tracker"]
+    P6["6.0<br/>Weekly Calendar Planner"]
+    P7["7.0<br/>Wardrobe Analytics Engine"]
+
+    D1[("D1: users")]
+    D2[("D2: preferences")]
+    D3[("D3: clothing_items")]
+    D4[("D4: outfits & outfit_items")]
+    D5[("D5: feedback")]
+    D6[("D6: planned_outfits")]
+
+    WeatherAPI["Open-Meteo API"]
+    GeminiAPI["Google Gemini 3 Flash"]
+
+    User -->|"Login / Register"| P1
+    P1 <--> D1
+    P1 <--> D2
+    P1 -->|"JWT Access Token"| User
+
+    User -->|"Item Details & Photos"| P2
+    P2 <--> D3
+    P2 -->|"Filtered Wardrobe List"| User
+
+    P1 -.->|"Home City"| P3
+    P3 <-->|"Weather Query"| WeatherAPI
+    P3 -->|"Live Weather Context"| P4
+
+    User -->|"Occasion & Anchor Item"| P4
+    D3 -->|"Owned Clothes"| P4
+    D5 -->|"Feedback Summary"| P4
+    P4 <-->|"Structured Prompt & JSON Response"| GeminiAPI
+    P4 -->|"Validated Outfits"| D4
+    D4 -->|"Recommended Looks"| User
+
+    User -->|"Like / Dislike / Save / Worn"| P5
+    P5 --> D5
+    P5 -->|"times_worn +1, last_worn"| D3
+
+    User -->|"Schedule Outfit on Date"| P6
+    P6 <--> D6
+    P6 -->|"Weekly Calendar View"| User
+
+    D3 --> P7
+    D4 --> P7
+    D5 --> P7
+    P7 -->|"Utilization %, Most Worn, Gems"| User
+
+    classDef default fill:#ffffea,stroke:#2b2b2b,stroke-width:1.5px,color:#000000;
+    classDef entity fill:#f5f5f5,stroke:#2b2b2b,stroke-width:2px,color:#000000;
+    classDef db fill:#e1f5fe,stroke:#2b2b2b,stroke-width:1.5px,color:#000000;
+    class User,WeatherAPI,GeminiAPI entity;
+    class D1,D2,D3,D4,D5,D6 db;
+        </div>
+      </div>
+    </section>
+
+    <!-- Diagram 5: ERD -->
+    <section class="diagram-card">
+      <h2><span class="badge">05</span> Entity Relationship Diagram (ERD)</h2>
+      <p class="diagram-desc">Crow's foot database entity diagram showing tables, primary keys, foreign keys, and cascading relationships.</p>
+      <div class="mermaid-wrapper">
+        <div class="mermaid">
+erDiagram
+    USERS ||--o| PREFERENCES : "configures"
+    USERS ||--o{ CLOTHING_ITEMS : "owns"
+    USERS ||--o{ OUTFITS : "generates"
+    USERS ||--o{ FEEDBACK : "records"
+    USERS ||--o{ PLANNED_OUTFITS : "schedules"
+
+    OUTFITS ||--|{ OUTFIT_ITEMS : "composed_of"
+    CLOTHING_ITEMS ||--o{ OUTFIT_ITEMS : "participates_in"
+
+    OUTFITS ||--o{ FEEDBACK : "evaluates"
+    OUTFITS ||--o{ PLANNED_OUTFITS : "calendar_entry"
+
+    USERS {
+        int id PK "Primary Key"
+        string name "User Name"
+        string email UK "Unique Email Address"
+        string password_hash "Bcrypt Password Hash"
+        string role "user | admin"
+        boolean is_active "Active Account Status"
+        datetime created_at "Registration Timestamp"
+    }
+
+    PREFERENCES {
+        int id PK "Primary Key"
+        int user_id FK "Foreign Key -> USERS.id"
+        json styles "Preferred Style Aesthetic Tags"
+        json favorite_colors "Liked Hex Color Swatches"
+        json avoid_colors "Disliked Hex Color Swatches"
+        string city "Home City for Weather"
+        boolean onboarding_done "Onboarding Completion Flag"
+        datetime updated_at "Last Modified Timestamp"
+    }
+
+    CLOTHING_ITEMS {
+        int id PK "Primary Key"
+        int user_id FK "Foreign Key -> USERS.id"
+        string name "Item Name"
+        string category "top | bottom | dress | footwear | etc."
+        string sub_type "shirt | jeans | sneakers | etc."
+        string color_name "Primary Color Label"
+        string color_hex "Primary Color Hex Code"
+        string secondary_color_hex "Secondary Hex Code (Nullable)"
+        string pattern "solid | striped | floral | etc."
+        string season "all | summer | winter | etc."
+        int formality "Formality Rating (1 to 5)"
+        json occasions "Occasion Tags List"
+        int warmth "Warmth Rating (1 to 5)"
+        string fabric "Fabric Composition"
+        text notes "User Styling Notes"
+        string image_path "Local File Storage Path"
+        int times_worn "Wear Counter"
+        date last_worn "Last Worn Calendar Date"
+        datetime created_at "Creation Timestamp"
+        datetime updated_at "Modification Timestamp"
+    }
+
+    OUTFITS {
+        int id PK "Primary Key"
+        int user_id FK "Foreign Key -> USERS.id"
+        string occasion "casual | office | formal | etc."
+        string name "Outfit Title"
+        int score "Match Score (0 to 100)"
+        text reason "AI Styling Explanation"
+        datetime created_at "Generation Timestamp"
+    }
+
+    OUTFIT_ITEMS {
+        int outfit_id PK, FK "Composite PK / FK -> OUTFITS.id"
+        int item_id PK, FK "Composite PK / FK -> CLOTHING_ITEMS.id"
+    }
+
+    FEEDBACK {
+        int id PK "Primary Key"
+        int user_id FK "Foreign Key -> USERS.id"
+        int outfit_id FK "Foreign Key -> OUTFITS.id"
+        string action "like | dislike | save"
+        datetime created_at "Feedback Timestamp"
+    }
+
+    PLANNED_OUTFITS {
+        int id PK "Primary Key"
+        int user_id FK "Foreign Key -> USERS.id"
+        int outfit_id FK "Foreign Key -> OUTFITS.id"
+        date planned_date "Scheduled Date (YYYY-MM-DD)"
+        text notes "Custom Day Note / Event"
+        datetime created_at "Schedule Timestamp"
+    }
+        </div>
+      </div>
+    </section>
+
+    <!-- Diagram 6: Activity -->
+    <section class="diagram-card">
+      <h2><span class="badge">06</span> Activity Diagram</h2>
+      <p class="diagram-desc">Detailed activity flow depicting decisions, validations, error branches, and wear-tracking activities.</p>
+      <div class="mermaid-wrapper">
+        <div class="mermaid">
+flowchart TD
+    InitialNode(( )) --> ActSelectOccasion["Select Target Occasion<br/>(casual, office, formal, date, etc.)"]
+    ActSelectOccasion --> ActInspectWeather["Retrieve Local Weather Forecast<br/>(Open-Meteo or Manual Override)"]
+    ActInspectWeather --> DecisionAnchor{"Designate an Anchor Piece?"}
+
+    DecisionAnchor -- "Yes" --> ActPickAnchor["Choose Hero Garment from Wardrobe"] --> ActSubmit["Trigger 'Generate Outfits'"]
+    DecisionAnchor -- "No" --> ActSubmit
+
+    ActSubmit --> ActPrecheck{"Check Wardrobe Preconditions:<br/>Top+Bottom OR Dress available?"}
+    ActPrecheck -- "No" --> ActDisplayError["Display Insufficient Wardrobe Alert"] --> FinalNode((( )))
+    ActPrecheck -- "Yes" --> ActBuildPrompt["Construct Sanitized Context with Owned IDs Only"]
+
+    ActBuildPrompt --> ActCallGemini["Request Recommendations from Google Gemini 3 Flash"]
+    ActCallGemini --> ActValidateOutput{"Run Strict Backend Validation:<br/>Verify IDs, Anchor presence & Hierarchy"}
+
+    ActValidateOutput -- "Discrepancy Detected" --> ActFilterIDs["Drop Unowned / Hallucinated IDs"]
+    ActFilterIDs --> ActSaveSQL[("Persist Verified Outfits & Associations in SQLite")]
+    ActValidateOutput -- "All Valid" --> ActSaveSQL
+
+    ActSaveSQL --> ActPresentCards["Present Outfit Cards with Real Item Collages & Match Scores"]
+    ActPresentCards --> DecisionUserFeedback{"User Decides Action"}
+
+    DecisionUserFeedback -->|"Thumbs Up"| ActLike["Submit 'like' Feedback (Clears Dislike)"] --> FinalNode
+    DecisionUserFeedback -->|"Thumbs Down"| ActDislike["Submit 'dislike' Feedback (Clears Like)"] --> FinalNode
+    DecisionUserFeedback -->|"Bookmark"| ActSaveOutfit["Toggle 'save' State in Collection"] --> FinalNode
+    DecisionUserFeedback -->|"Schedule Look"| ActScheduleDate["Assign to Date in Weekly Calendar Planner"] --> FinalNode
+    DecisionUserFeedback -->|"Wear Outfit"| ActRecordWear["Execute 'worn': increment times_worn & timestamp last_worn"] --> FinalNode
+
+    classDef default fill:#ffffea,stroke:#2b2b2b,stroke-width:1.5px,color:#000000;
+    classDef decision fill:#fff9c4,stroke:#2b2b2b,stroke-width:1.5px,color:#000000;
+    classDef initialNode fill:#000000,stroke:#000000,stroke-width:2px;
+    classDef finalNode fill:#ffffff,stroke:#000000,stroke-width:2px;
+    classDef storage fill:#e1f5fe,stroke:#2b2b2b,stroke-width:1.5px,color:#000000;
+
+    class InitialNode initialNode;
+    class FinalNode finalNode;
+    class DecisionAnchor,ActPrecheck,ActValidateOutput,DecisionUserFeedback decision;
+    class ActSaveSQL storage;
+        </div>
+      </div>
+    </section>
+
+    <!-- Diagram 7: Sequence -->
+    <section class="diagram-card">
+      <h2><span class="badge">07</span> Sequence Diagram</h2>
+      <p class="diagram-desc">Synchronous and asynchronous message flow between UI, FastAPI router, services, SQLite, and external APIs.</p>
+      <div class="mermaid-wrapper">
+        <div class="mermaid">
+sequenceDiagram
+    autonumber
+    actor User as :User
+    participant UI as :ReactFrontend
+    participant Router as :OutfitsRouter
+    participant WeatherSvc as :WeatherService
+    participant OutfitSvc as :OutfitService
+    participant GeminiSvc as :GeminiService
+    participant DB as :SQLiteDatabase
+
+    User->>UI: Select Occasion & Click "Generate Outfits"
+    UI->>Router: POST /api/v1/outfits/suggest {occasion, city, anchor_item_id}
+    
+    Router->>WeatherSvc: get_weather(city)
+    WeatherSvc-->>Router: WeatherOut (temp_c=25.0, class="warm", condition="Sunny")
+    
+    Router->>OutfitSvc: check_wardrobe_preconditions(user_items)
+    OutfitSvc->>DB: SELECT * FROM clothing_items WHERE user_id = :id
+    DB-->>OutfitSvc: Return wardrobe items list
+    OutfitSvc-->>Router: Preconditions Satisfied
+    
+    Router->>DB: SELECT feedback summary for user
+    DB-->>Router: Return recent liked/disliked attributes
+    
+    Router->>GeminiSvc: generate_recommendations(items, occasion, weather, anchor_id, feedback)
+    Note over GeminiSvc: Calls Google Gemini 3 Flash via asyncio.to_thread
+    GeminiSvc-->>Router: GeminiStructuredResponse {recommendations: [...]}
+    
+    Router->>OutfitSvc: validate_and_persist_recommendations(...)
+    loop For each outfit recommendation
+        OutfitSvc->>OutfitSvc: Validate item_ids belong to user
+        OutfitSvc->>OutfitSvc: Verify anchor_item_id present
+        OutfitSvc->>DB: INSERT INTO outfits (name, occasion, score, reason)
+        OutfitSvc->>DB: INSERT INTO outfit_items (outfit_id, item_id)
+    end
+    DB-->>OutfitSvc: Commit Successful
+    OutfitSvc-->>Router: Return List<OutfitOut> with real item metadata
+    
+    Router-->>UI: HTTP 200 OK {weather, outfits: [...]}
+    UI-->>User: Render Outfit Cards with photo collage & action buttons
+        </div>
+      </div>
+    </section>
+
+    <!-- Diagram 8: Class -->
+    <section class="diagram-card">
+      <h2><span class="badge">08</span> Class Diagram</h2>
+      <p class="diagram-desc">Object-oriented class structures, SQLAlchemy models, service abstractions, and multiplicities.</p>
+      <div class="mermaid-wrapper">
+        <div class="mermaid">
+classDiagram
+    class User {
+        +int id
+        +string name
+        +string email
+        +string password_hash
+        +string role
+        +boolean is_active
+        +datetime created_at
+    }
+
+    class Preference {
+        +int id
+        +int user_id
+        +list styles
+        +list favorite_colors
+        +list avoid_colors
+        +string city
+        +boolean onboarding_done
+        +datetime updated_at
+    }
+
+    class ClothingItem {
+        +int id
+        +int user_id
+        +string name
+        +string category
+        +string sub_type
+        +string color_name
+        +string color_hex
+        +string secondary_color_hex
+        +string pattern
+        +string season
+        +int formality
+        +list occasions
+        +int warmth
+        +string fabric
+        +string image_path
+        +int times_worn
+        +date last_worn
+        +datetime created_at
+    }
+
+    class Outfit {
+        +int id
+        +int user_id
+        +string occasion
+        +string name
+        +int score
+        +string reason
+        +datetime created_at
+    }
+
+    class Feedback {
+        +int id
+        +int user_id
+        +int outfit_id
+        +string action
+        +datetime created_at
+    }
+
+    class PlannedOutfit {
+        +int id
+        +int user_id
+        +int outfit_id
+        +date planned_date
+        +string notes
+        +datetime created_at
+    }
+
+    class GeminiService {
+        +generate_recommendations(user_items, occasion, weather, anchor_id, feedback_summary) GeminiStructuredResponse
+    }
+
+    class OutfitService {
+        +check_wardrobe_preconditions(items) void
+        +validate_single_recommendation(rec, user_items_map, anchor_id) bool
+        +to_outfit_out(outfit, user_id, db) OutfitOut
+        +record_feedback(user_id, outfit_id, action, db) OutfitOut
+        +get_saved_outfits(user_id, type_filter, page, limit, db) SavedOutfitsResponse
+    }
+
+    class WeatherService {
+        +get_weather(city) WeatherOut
+        +classify_temperature(temp_c) string
+    }
+
+    class InsightService {
+        +get_summary(user_id, db) InsightsSummaryOut
+    }
+
+    User "1" *-- "1" Preference : has
+    User "1" *-- "*" ClothingItem : owns
+    User "1" *-- "*" Outfit : creates
+    User "1" *-- "*" Feedback : submits
+    User "1" *-- "*" PlannedOutfit : schedules
+
+    Outfit "*" o-- "*" ClothingItem : outfit_items
+    Outfit "1" *-- "*" Feedback : evaluates
+    Outfit "1" *-- "*" PlannedOutfit : plans
+
+    OutfitService ..> GeminiService : invokes
+    OutfitService ..> WeatherService : queries
+    OutfitService ..> Outfit : manages
+    InsightService ..> ClothingItem : computes
+        </div>
+      </div>
+    </section>
+
+    <!-- Diagram 9: State -->
+    <section class="diagram-card">
+      <h2><span class="badge">09</span> State Diagram</h2>
+      <p class="diagram-desc">State transition diagrams for a physical Clothing Item and an Outfit Recommendation.</p>
+      <div class="mermaid-wrapper">
+        <div class="mermaid">
+stateDiagram-v2
+    [*] --> Uncataloged : Physical Garment Acquired
+
+    state "Clothing Item Life Cycle" as ItemLifecycle {
+        Uncataloged --> Cataloged : Upload & Tag in Wardrobe
+        Cataloged --> ForgottenGem : times_worn = 0
+        ForgottenGem --> AnchorSelected : Chosen as Hero Piece in Stylist
+        AnchorSelected --> SuggestedInLook : Gemini Builds Outfit
+        SuggestedInLook --> WornActive : Marked as Worn by User
+        WornActive --> FavoritePiece : times_worn >= 5
+        WornActive --> Archived : Deleted from Wardrobe
+        ForgottenGem --> Archived : Deleted from Wardrobe
+    }
+
+    state "Outfit Recommendation Life Cycle" as RecommendationLifecycle {
+        [*] --> ParameterSelection : Occasion & Weather Defined
+        ParameterSelection --> GeminiProcessing : Prompt Context Dispatched
+        GeminiProcessing --> StrictVerification : Backend ID & Category Check
+        StrictVerification --> SavedInHistory : Persisted to Database
+        
+        SavedInHistory --> LikedState : Thumbs Up Submitted
+        SavedInHistory --> DislikedState : Thumbs Down Submitted
+        SavedInHistory --> BookmarkedState : Saved to Collection
+        
+        BookmarkedState --> CalendarScheduled : Assigned to Date
+        LikedState --> CalendarScheduled : Assigned to Date
+        SavedInHistory --> CalendarScheduled : Assigned to Date
+
+        CalendarScheduled --> WornEventExecuted : "I Wore This" Confirmed
+        WornEventExecuted --> [*] : Clothing times_worn Incremented
+    }
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <script>
+    mermaid.initialize({
+      startOnLoad: true,
+      theme: 'base',
+      themeVariables: {
+        background: '#ffffff',
+        primaryColor: '#ffffea',
+        primaryBorderColor: '#2b2b2b',
+        primaryTextColor: '#000000',
+        lineColor: '#2b2b2b',
+        secondaryColor: '#f9fafb',
+        tertiaryColor: '#ffffff',
+        fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif'
+      }
+    });
+  </script>
+</body>
+</html>
