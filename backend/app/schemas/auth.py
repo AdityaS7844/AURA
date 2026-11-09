@@ -4,6 +4,7 @@ Strictly matching 04_API.txt and 08_SCHEMA.txt contracts.
 """
 
 from datetime import datetime
+from typing import Optional
 from pydantic import BaseModel, EmailStr, Field, ConfigDict
 
 
