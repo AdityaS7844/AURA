@@ -479,7 +479,7 @@ export default function LandingPage() {
             <span>• Powered by Google Gemini AI & SQLite</span>
           </div>
           <div>
-            <span>Desktop-first responsive design • Milestone 10 Complete</span>
+            <span>Desktop-first responsive design • All rights reserved</span>
           </div>
         </div>
       </footer>
