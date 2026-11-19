@@ -31,8 +31,17 @@ export const AuthProvider = ({ children }) => {
     initAuth();
   }, []);
 
-  const login = async (email, password) => {
-    const data = await loginApi({ email, password });
+  const login = async (firstArg, secondArg) => {
+    // If called with user object and token directly: login(user, token)
+    if (typeof firstArg === 'object' && firstArg !== null && secondArg) {
+      localStorage.setItem('aura_token', secondArg);
+      localStorage.setItem('aura_user', JSON.stringify(firstArg));
+      setToken(secondArg);
+      setUser(firstArg);
+      return firstArg;
+    }
+    // Otherwise called with credentials: login(email, password)
+    const data = await loginApi({ email: firstArg, password: secondArg });
     localStorage.setItem('aura_token', data.access_token);
     localStorage.setItem('aura_user', JSON.stringify(data.user));
     setToken(data.access_token);

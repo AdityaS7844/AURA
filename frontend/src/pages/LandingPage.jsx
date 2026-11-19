@@ -45,9 +45,8 @@ export default function LandingPage() {
     setLoginLoading(true);
 
     try {
-      const data = await loginApi({ email: loginEmail, password: loginPassword });
-      login(data.user, data.access_token);
-      navigate('/');
+      await login(loginEmail, loginPassword);
+      navigate('/dashboard');
     } catch (err) {
       setLoginError(err.response?.data?.detail || 'Invalid email or password');
     } finally {
@@ -66,12 +65,7 @@ export default function LandingPage() {
 
     setSignupLoading(true);
     try {
-      const data = await registerApi({
-        name: signupName,
-        email: signupEmail,
-        password: signupPassword,
-      });
-      login(data.user, data.access_token);
+      await register(signupName, signupEmail, signupPassword);
       navigate('/onboarding');
     } catch (err) {
       setSignupError(err.response?.data?.detail || 'Failed to create account');
@@ -86,11 +80,10 @@ export default function LandingPage() {
     setLoginLoading(true);
     setLoginError('');
     try {
-      const data = await loginApi({ email: 'demo@wardrobe.com', password: 'demo12345' });
-      login(data.user, data.access_token);
-      navigate('/');
+      await login('demo@wardrobe.com', 'demo12345');
+      navigate('/dashboard');
     } catch (err) {
-      setLoginError('Demo login failed. Please ensure the backend is running.');
+      setLoginError(err.response?.data?.detail || 'Demo login failed. Please ensure the backend is running.');
     } finally {
       setLoginLoading(false);
     }
