@@ -40,7 +40,14 @@ export default function SignupPage() {
       navigate('/');
     } catch (err) {
       console.error('Registration error:', err);
-      const message = err.response?.data?.detail || 'Failed to create account. Please try again.';
+      let message = 'Failed to create account. Please try again.';
+      if (err.response?.data?.detail) {
+        if (typeof err.response.data.detail === 'string') {
+          message = err.response.data.detail;
+        } else if (Array.isArray(err.response.data.detail)) {
+          message = err.response.data.detail.map((d) => d.msg || JSON.stringify(d)).join(', ');
+        }
+      }
       setError(message);
     } finally {
       setLoading(false);
