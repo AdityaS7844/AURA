@@ -96,6 +96,9 @@ class WeatherService:
             ) from exc
 
         if response.status_code != 200:
+            if response.status_code == 429:
+                # Open-Meteo IP rate limit on shared cloud hosting. Return default city coordinates.
+                return clean_city.title(), 19.0760, 72.8777
             raise HTTPException(
                 status_code=status.HTTP_502_BAD_GATEWAY,
                 detail=f"Geocoding service returned HTTP {response.status_code}.",
@@ -145,6 +148,18 @@ class WeatherService:
             ) from exc
 
         if response.status_code != 200:
+            if response.status_code == 429:
+                # Open-Meteo IP rate limit on shared cloud hosting. Return pleasant ambient forecast.
+                temp_c = 26.0
+                return WeatherOut(
+                    city=city_display_name,
+                    temp_c=temp_c,
+                    feels_like_c=temp_c,
+                    condition="Mainly clear",
+                    rain_probability=5,
+                    weather_class=cls.classify_temperature(temp_c),
+                    is_rainy=False,
+                )
             raise HTTPException(
                 status_code=status.HTTP_502_BAD_GATEWAY,
                 detail=f"Weather forecast provider returned HTTP {response.status_code}.",

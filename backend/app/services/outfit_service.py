@@ -146,16 +146,28 @@ class OutfitService:
                 "is_rainy": False,
             }
         else:
-            weather_obj = await WeatherService.get_weather_for_city(target_city)
-            weather_data = {
-                "city": weather_obj.city,
-                "temp_c": weather_obj.temp_c,
-                "feels_like_c": weather_obj.feels_like_c,
-                "condition": weather_obj.condition,
-                "rain_probability": weather_obj.rain_probability,
-                "class": weather_obj.weather_class,
-                "is_rainy": weather_obj.is_rainy,
-            }
+            try:
+                weather_obj = await WeatherService.get_weather_for_city(target_city)
+                weather_data = {
+                    "city": weather_obj.city,
+                    "temp_c": weather_obj.temp_c,
+                    "feels_like_c": weather_obj.feels_like_c,
+                    "condition": weather_obj.condition,
+                    "rain_probability": weather_obj.rain_probability,
+                    "class": weather_obj.weather_class,
+                    "is_rainy": weather_obj.is_rainy,
+                }
+            except Exception:
+                # Weather provider fallback so styling never fails due to third-party weather API issues
+                weather_data = {
+                    "city": target_city,
+                    "temp_c": 24.0,
+                    "feels_like_c": 24.0,
+                    "condition": "Mainly clear",
+                    "rain_probability": 0,
+                    "class": "warm",
+                    "is_rainy": False,
+                }
 
         # 4. Build compact wardrobe context for Gemini
         wardrobe_context = [
