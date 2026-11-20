@@ -9,6 +9,7 @@ from sqlalchemy.orm import Session
 from sqlalchemy import or_, desc
 from fastapi import HTTPException, status, UploadFile
 from app.models.clothing import ClothingItem
+from app.models.preference import Preference
 from app.schemas.wardrobe import ItemCreate, ItemUpdate, ItemOut
 from app.utils.image_utils import save_wardrobe_image, delete_wardrobe_image, build_image_url
 
@@ -230,3 +231,112 @@ class WardrobeService:
         db.commit()
         db.refresh(item)
         return cls._to_item_out(item)
+
+    @classmethod
+    def seed_starter_wardrobe(cls, user_id: int, db: Session) -> None:
+        """Seeds starter wardrobe essentials and default preferences for newly registered users."""
+        starter_items = [
+            {
+                "name": "Classic White Oxford Shirt",
+                "category": "top",
+                "sub_type": "shirt",
+                "color_name": "White",
+                "color_hex": "#FFFFFF",
+                "pattern": "solid",
+                "season": "all",
+                "formality": 3,
+                "warmth": 2,
+                "occasions": ["office", "formal", "date", "casual"],
+                "fabric": "100% Cotton",
+                "notes": "Crisp button-down shirt suitable for smart casual and business wear.",
+            },
+            {
+                "name": "Navy Blue Polo T-Shirt",
+                "category": "top",
+                "sub_type": "polo",
+                "color_name": "Navy Blue",
+                "color_hex": "#1F2A44",
+                "pattern": "solid",
+                "season": "all",
+                "formality": 2,
+                "warmth": 2,
+                "occasions": ["casual", "travel", "sports"],
+                "fabric": "Pique Cotton",
+                "notes": "Breathable collared polo for relaxed styling.",
+            },
+            {
+                "name": "Black Crewneck T-Shirt",
+                "category": "top",
+                "sub_type": "tshirt",
+                "color_name": "Black",
+                "color_hex": "#000000",
+                "pattern": "solid",
+                "season": "all",
+                "formality": 1,
+                "warmth": 2,
+                "occasions": ["casual", "party", "date"],
+                "fabric": "Organic Cotton",
+                "notes": "Versatile foundational tee for everyday wear.",
+            },
+            {
+                "name": "Slim-Fit Dark Indigo Jeans",
+                "category": "bottom",
+                "sub_type": "jeans",
+                "color_name": "Indigo",
+                "color_hex": "#1A2B4C",
+                "pattern": "solid",
+                "season": "all",
+                "formality": 2,
+                "warmth": 3,
+                "occasions": ["casual", "party", "travel", "date"],
+                "fabric": "Denim Cotton",
+                "notes": "Durable stretch-denim jeans.",
+            },
+            {
+                "name": "Tailored Beige Chinos",
+                "category": "bottom",
+                "sub_type": "chinos",
+                "color_name": "Beige",
+                "color_hex": "#D4C5B9",
+                "pattern": "solid",
+                "season": "all",
+                "formality": 3,
+                "warmth": 2,
+                "occasions": ["office", "casual", "date"],
+                "fabric": "Cotton Twill",
+                "notes": "Smart-casual trousers.",
+            },
+            {
+                "name": "Classic White Minimalist Sneakers",
+                "category": "shoes",
+                "sub_type": "sneakers",
+                "color_name": "White",
+                "color_hex": "#FFFFFF",
+                "pattern": "solid",
+                "season": "all",
+                "formality": 2,
+                "warmth": 2,
+                "occasions": ["casual", "travel", "date"],
+                "fabric": "Leather",
+                "notes": "Versatile everyday footwear.",
+            },
+        ]
+
+        for item_data in starter_items:
+            item = ClothingItem(user_id=user_id, **item_data)
+            db.add(item)
+
+        # Ensure default preferences exist
+        existing_pref = db.query(Preference).filter(Preference.user_id == user_id).first()
+        if not existing_pref:
+            pref = Preference(
+                user_id=user_id,
+                styles=["casual", "minimal"],
+                favorite_colors=["#1F2A44", "#FFFFFF"],
+                avoid_colors=[],
+                city="Mumbai",
+                onboarding_done=True,
+            )
+            db.add(pref)
+
+        db.commit()

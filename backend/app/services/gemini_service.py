@@ -123,15 +123,15 @@ class GeminiService:
         """
         client = cls.get_client()
         user_prompt = cls.build_prompt(context)
-        preferred = settings.GEMINI_MODEL or "gemini-3-flash-preview"
-        deprecated_models = {"gemini-2.5-flash", "gemini-2.5-pro", "gemini-2.0-flash", "gemini-1.5-flash"}
+        preferred = settings.GEMINI_MODEL or "gemini-2.5-flash"
+        deprecated_models = {"gemini-1.5-flash", "gemini-1.5-pro", "gemini-1.0-pro"}
 
         candidate_models = []
-        for m in [preferred, "gemini-3-flash-preview", "gemini-3.5-flash-lite", "gemini-flash-latest"]:
+        for m in [preferred, "gemini-2.5-flash", "gemini-2.0-flash", "gemini-flash-latest"]:
             if m and m not in deprecated_models and m not in candidate_models:
                 candidate_models.append(m)
         if not candidate_models:
-            candidate_models = ["gemini-3-flash-preview", "gemini-3.5-flash-lite"]
+            candidate_models = ["gemini-2.5-flash", "gemini-2.0-flash"]
 
         last_error = None
         for model_name in candidate_models:
