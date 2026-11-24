@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Sparkles, Shirt, Eye, ThumbsUp, ThumbsDown, Bookmark, Check, CalendarCheck } from 'lucide-react';
 import OutfitDetailModal from './OutfitDetailModal';
 import { submitFeedbackApi } from '../../api/outfits';
