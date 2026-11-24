@@ -81,6 +81,7 @@ export default function LandingPage() {
       await register(signupName, signupEmail, signupPassword);
       navigate('/dashboard');
     } catch (err) {
+      console.error('Registration error:', err);
       let message = 'Failed to create account. Please try again.';
       if (err.response?.data?.detail) {
         if (typeof err.response.data.detail === 'string') {
@@ -88,6 +89,8 @@ export default function LandingPage() {
         } else if (Array.isArray(err.response.data.detail)) {
           message = err.response.data.detail.map((d) => d.msg || JSON.stringify(d)).join(', ');
         }
+      } else if (err.message) {
+        message = `Connection issue (${err.message}). The backend might still be waking up, or cross-origin requests are blocked by browser shields/ad-blockers.`;
       }
       setSignupError(message);
     } finally {
