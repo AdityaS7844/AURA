@@ -180,6 +180,16 @@ def mark_clothing_item_worn(
     return WardrobeService.mark_item_worn(user_id=current_user.id, item_id=item_id, db=db)
 
 
+@router.post("/seed-starter", status_code=status.HTTP_201_CREATED)
+def seed_starter_wardrobe_endpoint(
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    """Allows an authenticated user with an empty or fresh wardrobe to load starter essentials."""
+    WardrobeService.seed_starter_wardrobe(user_id=current_user.id, db=db)
+    return {"status": "ok", "message": "Starter wardrobe essentials successfully added."}
+
+
 # Image Serving Endpoints (Static Images - Section H)
 @router.get("/uploads/{user_id}/{filename}")
 def serve_wardrobe_image(user_id: int, filename: str):

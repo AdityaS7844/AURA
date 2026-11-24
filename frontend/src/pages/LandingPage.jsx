@@ -38,6 +38,19 @@ export default function LandingPage() {
   const [signupPassword, setSignupPassword] = useState('');
   const [signupLoading, setSignupLoading] = useState(false);
   const [signupError, setSignupError] = useState('');
+  const [isWakingUp, setIsWakingUp] = useState(false);
+
+  useEffect(() => {
+    let timer;
+    if (loginLoading || signupLoading) {
+      timer = setTimeout(() => {
+        setIsWakingUp(true);
+      }, 2500);
+    } else {
+      setIsWakingUp(false);
+    }
+    return () => clearTimeout(timer);
+  }, [loginLoading, signupLoading]);
 
   const handleLoginSubmit = async (e) => {
     e.preventDefault();
@@ -247,6 +260,13 @@ export default function LandingPage() {
                     </div>
                   )}
 
+                  {isWakingUp && (
+                    <div className="p-3 rounded-xl bg-amber-50 text-amber-800 text-xs border border-amber-200 flex items-center space-x-2 animate-pulse">
+                      <div className="w-2 h-2 rounded-full bg-amber-500 animate-ping shrink-0" />
+                      <span>Connecting to cloud backend... Server is waking up from sleep mode (takes ~20-30s on first load).</span>
+                    </div>
+                  )}
+
                   <div>
                     <label
                       htmlFor="hero-email"
@@ -322,6 +342,13 @@ export default function LandingPage() {
                   {signupError && (
                     <div className="p-3 rounded-xl bg-red-50 text-red-700 text-xs border border-red-200">
                       {signupError}
+                    </div>
+                  )}
+
+                  {isWakingUp && (
+                    <div className="p-3 rounded-xl bg-amber-50 text-amber-800 text-xs border border-amber-200 flex items-center space-x-2 animate-pulse">
+                      <div className="w-2 h-2 rounded-full bg-amber-500 animate-ping shrink-0" />
+                      <span>Connecting to cloud backend... Server is waking up from sleep mode (takes ~20-30s on first load).</span>
                     </div>
                   )}
 

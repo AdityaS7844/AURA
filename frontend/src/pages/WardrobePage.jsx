@@ -6,13 +6,26 @@ import FilterBar from '../components/wardrobe/FilterBar';
 import ClothingCard from '../components/wardrobe/ClothingCard';
 import Skeleton from '../components/common/Skeleton';
 import EmptyState from '../components/common/EmptyState';
-import { listItemsApi } from '../api/wardrobe';
+import { listItemsApi, seedStarterWardrobeApi } from '../api/wardrobe';
 
 export default function WardrobePage() {
   const [items, setItems] = useState([]);
   const [total, setTotal] = useState(0);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const [seeding, setSeeding] = useState(false);
+
+  const handleSeedStarter = async () => {
+    setSeeding(true);
+    try {
+      await seedStarterWardrobeApi();
+      await fetchWardrobe();
+    } catch (err) {
+      console.error('Failed to load starter wardrobe:', err);
+    } finally {
+      setSeeding(false);
+    }
+  };
 
   // Filter States
   const [search, setSearch] = useState('');
@@ -122,18 +135,34 @@ export default function WardrobePage() {
         {loading ? (
           <Skeleton count={8} />
         ) : items.length === 0 ? (
-          <EmptyState
-            icon={Shirt}
-            title={category || search ? 'No matching clothing items' : 'Your wardrobe is empty'}
-            description={
-              category || search
-                ? 'Try adjusting your search keywords or resetting your active category filters.'
-                : 'Start digitizing your physical clothes to unlock AI personalized outfit styling.'
-            }
-            actionText={category || search ? 'Reset Filters' : 'Add Your First Item'}
-            actionLink={category || search ? undefined : '/wardrobe/add'}
-            onAction={category || search ? handleResetFilters : undefined}
-          />
+          <div className="space-y-4">
+            <EmptyState
+              icon={Shirt}
+              title={category || search ? 'No matching clothing items' : 'Your wardrobe is empty'}
+              description={
+                category || search
+                  ? 'Try adjusting your search keywords or resetting your active category filters.'
+                  : 'Start digitizing your physical clothes to unlock AI personalized outfit styling.'
+              }
+              actionText={category || search ? 'Reset Filters' : 'Add Your First Item'}
+              actionLink={category || search ? undefined : '/wardrobe/add'}
+              onAction={category || search ? handleResetFilters : undefined}
+            />
+            {!category && !search && (
+              <div className="flex flex-col items-center justify-center space-y-2 pb-6">
+                <span className="text-xs text-[var(--color-aura-muted)]">or quick-start right away:</span>
+                <button
+                  type="button"
+                  onClick={handleSeedStarter}
+                  disabled={seeding}
+                  className="inline-flex items-center space-x-2 px-6 py-2.5 rounded-xl text-xs font-bold text-white bg-[var(--color-aura-primary)] hover:bg-[var(--color-aura-accent)] transition-all shadow-xs cursor-pointer disabled:opacity-50"
+                >
+                  <span>{seeding ? 'Adding Starter Clothes...' : '✨ Load 6 Starter Essentials'}</span>
+                </button>
+                <span className="text-[11px] text-[var(--color-aura-muted)]">Includes white oxford shirt, navy polo, dark jeans, chinos & sneakers</span>
+              </div>
+            )}
+          </div>
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
             {items.map((item) => (

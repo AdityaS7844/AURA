@@ -57,3 +57,12 @@ export const markItemWornApi = async (id) => {
   const response = await api.post(`/wardrobe/items/${id}/worn`);
   return response.data;
 };
+
+/**
+ * Seed starter wardrobe essentials (6 items)
+ * POST /api/v1/wardrobe/seed-starter
+ */
+export const seedStarterWardrobeApi = async () => {
+  const response = await api.post('/wardrobe/seed-starter');
+  return response.data;
+};

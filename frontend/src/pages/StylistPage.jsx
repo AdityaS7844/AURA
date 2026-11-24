@@ -21,7 +21,7 @@ import AnchorItemPickerModal from '../components/outfit/AnchorItemPickerModal';
 import StylistLoadingSkeleton from '../components/outfit/StylistLoadingSkeleton';
 import OutfitCard from '../components/outfit/OutfitCard';
 import { suggestOutfitsApi } from '../api/outfits';
-import { listItemsApi } from '../api/wardrobe';
+import { listItemsApi, seedStarterWardrobeApi } from '../api/wardrobe';
 import { getPreferencesApi } from '../api/preferences';
 import { useWeather } from '../hooks/useWeather';
 
@@ -54,6 +54,7 @@ export default function StylistPage() {
   const [wardrobeItems, setWardrobeItems] = useState([]);
   const [wardrobeLoading, setWardrobeLoading] = useState(true);
   const [hasSufficientWardrobe, setHasSufficientWardrobe] = useState(true);
+  const [seedingLoading, setSeedingLoading] = useState(false);
   const [userCity, setUserCity] = useState('Mumbai');
 
   // AI Recommendation Results State
@@ -130,6 +131,24 @@ export default function StylistPage() {
     }
   };
 
+  const handleLoadStarter = async () => {
+    setSeedingLoading(true);
+    try {
+      await seedStarterWardrobeApi();
+      const wardrobeData = await listItemsApi({ limit: 100 });
+      const items = wardrobeData.items || [];
+      setWardrobeItems(items);
+      const hasTop = items.some((it) => it.category === 'top');
+      const hasBottom = items.some((it) => it.category === 'bottom');
+      const hasDress = items.some((it) => it.category === 'dress');
+      setHasSufficientWardrobe((hasTop && hasBottom) || hasDress);
+    } catch (err) {
+      console.error('Failed to load starter wardrobe:', err);
+    } finally {
+      setSeedingLoading(false);
+    }
+  };
+
   // Precondition Failure: Empty or Insufficient Wardrobe View
   if (!wardrobeLoading && !hasSufficientWardrobe) {
     return (
@@ -149,13 +168,22 @@ export default function StylistPage() {
               </p>
             </div>
 
-            <div className="pt-2">
+            <div className="pt-2 flex flex-col sm:flex-row items-center justify-center gap-3">
+              <button
+                type="button"
+                onClick={handleLoadStarter}
+                disabled={seedingLoading}
+                className="inline-flex items-center space-x-2 px-6 py-3 rounded-2xl text-xs font-bold text-white bg-[var(--color-aura-primary)] hover:bg-[var(--color-aura-accent)] transition-all shadow-md cursor-pointer disabled:opacity-50"
+              >
+                <Sparkles className="w-4 h-4" />
+                <span>{seedingLoading ? 'Adding Essentials...' : '✨ Load 6 Starter Essentials'}</span>
+              </button>
               <Link
                 to="/wardrobe/add"
-                className="inline-flex items-center space-x-2 px-6 py-3 rounded-2xl text-xs font-bold text-white bg-[var(--color-aura-primary)] hover:bg-[var(--color-aura-accent)] transition-all shadow-md cursor-pointer"
+                className="inline-flex items-center space-x-2 px-6 py-3 rounded-2xl text-xs font-bold border border-[var(--color-aura-border)] text-[var(--color-aura-text)] hover:bg-gray-50 transition-all cursor-pointer"
               >
                 <Plus className="w-4 h-4" />
-                <span>Add Clothes to Wardrobe</span>
+                <span>Upload My Own Clothes</span>
               </Link>
             </div>
           </div>

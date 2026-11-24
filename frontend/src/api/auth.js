@@ -4,8 +4,8 @@ import api from './client';
  * Register a new user
  * POST /api/v1/auth/register
  */
-export const registerApi = async ({ name, email, password }) => {
-  const response = await api.post('/auth/register', { name, email, password });
+export const registerApi = async ({ name, email, password, starter_wardrobe = true }) => {
+  const response = await api.post('/auth/register', { name, email, password, starter_wardrobe });
   return response.data;
 };
 

@@ -100,6 +100,14 @@ def register(request: RegisterRequest, db: Session = Depends(get_db)):
     db.commit()
     db.refresh(new_user)
 
+    # Auto-seed starter wardrobe essentials if requested (default for UI signups)
+    if request.starter_wardrobe:
+        from app.services.wardrobe_service import WardrobeService
+        try:
+            WardrobeService.seed_starter_wardrobe(new_user.id, db)
+        except Exception:
+            pass
+
     # Generate JWT access token
     access_token = create_access_token(data={"sub": str(new_user.id)})
     return TokenResponse(

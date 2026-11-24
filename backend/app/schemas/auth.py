@@ -12,6 +12,7 @@ class RegisterRequest(BaseModel):
     name: str = Field(..., min_length=1, max_length=100, description="User full or display name")
     email: EmailStr = Field(..., description="Unique email address")
     password: str = Field(..., min_length=8, description="Password minimum 8 characters")
+    starter_wardrobe: Optional[bool] = Field(default=False, description="Optionally auto-seed 6 starter wardrobe essentials")
 
 
 class LoginRequest(BaseModel):

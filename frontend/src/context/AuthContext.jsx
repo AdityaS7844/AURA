@@ -49,8 +49,8 @@ export const AuthProvider = ({ children }) => {
     return data.user;
   };
 
-  const register = async (name, email, password) => {
-    const data = await registerApi({ name, email, password });
+  const register = async (name, email, password, starter_wardrobe = true) => {
+    const data = await registerApi({ name, email, password, starter_wardrobe });
     localStorage.setItem('aura_token', data.access_token);
     localStorage.setItem('aura_user', JSON.stringify(data.user));
     setToken(data.access_token);
