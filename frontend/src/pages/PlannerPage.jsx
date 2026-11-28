@@ -15,6 +15,7 @@ import {
   Wand2,
 } from 'lucide-react';
 import AppLayout from '../components/layout/AppLayout';
+import WardrobeImage from '../components/common/WardrobeImage';
 import { getPlannedOutfitsApi, scheduleOutfitApi, unscheduleOutfitApi } from '../api/planner';
 import { getSavedOutfitsApi, submitFeedbackApi } from '../api/outfits';
 
@@ -311,11 +312,14 @@ export default function PlannerPage() {
                         <div className="grid grid-cols-3 gap-1 rounded-lg overflow-hidden bg-gray-50 p-1 border border-gray-100">
                           {outfit.items?.slice(0, 3).map((item) => (
                             <div key={item.id} className="aspect-square bg-white rounded overflow-hidden flex items-center justify-center">
-                              {item.image_url ? (
-                                <img src={item.image_url} alt={item.name} className="w-full h-full object-cover" />
-                              ) : (
-                                <Shirt className="w-3.5 h-3.5 text-gray-400" />
-                              )}
+                              <WardrobeImage
+                                src={item.image_url}
+                                alt={item.name}
+                                category={item.category}
+                                className="w-full h-full object-cover"
+                                fallbackClassName="flex items-center justify-center text-gray-400 p-0.5 w-full h-full"
+                                iconSize="w-3.5 h-3.5"
+                              />
                             </div>
                           ))}
                         </div>
@@ -432,11 +436,14 @@ export default function PlannerPage() {
                                     key={item.id}
                                     className="w-8 h-8 rounded-lg bg-white border border-gray-200 overflow-hidden"
                                   >
-                                    {item.image_url ? (
-                                      <img src={item.image_url} alt={item.name} className="w-full h-full object-cover" />
-                                    ) : (
-                                      <Shirt className="w-3.5 h-3.5 m-auto mt-2 text-gray-400" />
-                                    )}
+                                    <WardrobeImage
+                                      src={item.image_url}
+                                      alt={item.name}
+                                      category={item.category}
+                                      className="w-full h-full object-cover"
+                                      fallbackClassName="flex items-center justify-center text-gray-400 p-0.5 w-full h-full"
+                                      iconSize="w-3.5 h-3.5"
+                                    />
                                   </div>
                                 ))}
                               </div>

@@ -3,6 +3,7 @@ import { useParams, useNavigate, Link } from 'react-router-dom';
 import { ArrowLeft, Edit3, Trash2, Calendar, CheckCircle2, Flame, Award, Shirt, Sparkles, AlertCircle, Clock } from 'lucide-react';
 import AppLayout from '../components/layout/AppLayout';
 import ConfirmModal from '../components/common/ConfirmModal';
+import WardrobeImage from '../components/common/WardrobeImage';
 import { getItemApi, deleteItemApi, markItemWornApi } from '../api/wardrobe';
 
 export default function ItemDetailPage() {
@@ -132,21 +133,13 @@ export default function ItemDetailPage() {
           {/* Left Column: Photograph */}
           <div className="space-y-4">
             <div className="bg-[var(--color-aura-surface)] rounded-3xl border border-[var(--color-aura-border)] overflow-hidden shadow-sm h-96 sm:h-[450px] flex items-center justify-center relative">
-              {item.image_url ? (
-                <img
-                  src={item.image_url}
-                  alt={item.name}
-                  className="w-full h-full object-cover"
-                />
-              ) : (
-                <div className="text-center p-8 text-[var(--color-aura-muted)]">
-                  <div className="w-20 h-20 rounded-3xl bg-[var(--color-aura-lavender)] text-[var(--color-aura-primary)] flex items-center justify-center mx-auto mb-3 shadow-sm">
-                    <Shirt className="w-10 h-10" />
-                  </div>
-                  <p className="text-sm font-semibold capitalize">{item.name}</p>
-                  <p className="text-xs text-[var(--color-aura-muted)] capitalize mt-1">No photograph uploaded</p>
-                </div>
-              )}
+              <WardrobeImage
+                src={item.image_url}
+                alt={item.name}
+                category={item.category}
+                className="w-full h-full object-cover"
+                iconSize="w-12 h-12"
+              />
             </div>
 
             {/* Quick Wear Tracking Card */}

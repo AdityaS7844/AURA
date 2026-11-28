@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { X, Sparkles, Shirt, ThumbsUp, ThumbsDown, Bookmark, Check, CalendarCheck } from 'lucide-react';
+import WardrobeImage from '../common/WardrobeImage';
 import { submitFeedbackApi } from '../../api/outfits';
 
 export default function OutfitDetailModal({ outfit, isOpen, onClose, onUpdate }) {
@@ -87,15 +88,14 @@ export default function OutfitDetailModal({ outfit, isOpen, onClose, onUpdate })
                   className="flex items-center space-x-4 p-3 rounded-2xl border border-[var(--color-aura-border)] bg-[var(--color-aura-surface)] hover:border-[var(--color-aura-accent)] transition-all shadow-2xs"
                 >
                   <div className="w-20 h-20 rounded-xl bg-[var(--color-aura-page)] overflow-hidden shrink-0 flex items-center justify-center border border-[var(--color-aura-border)]">
-                    {item.image_url ? (
-                      <img
-                        src={item.image_url}
-                        alt={item.name}
-                        className="w-full h-full object-cover"
-                      />
-                    ) : (
-                      <Shirt className="w-8 h-8 text-[var(--color-aura-muted)] opacity-60" />
-                    )}
+                    <WardrobeImage
+                      src={item.image_url}
+                      alt={item.name}
+                      category={item.category}
+                      className="w-full h-full object-cover"
+                      fallbackClassName="flex items-center justify-center text-[var(--color-aura-muted)] p-2 w-full h-full"
+                      iconSize="w-6 h-6"
+                    />
                   </div>
 
                   <div className="flex-1 min-w-0 space-y-1">

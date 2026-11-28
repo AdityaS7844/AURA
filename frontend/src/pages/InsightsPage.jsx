@@ -15,6 +15,7 @@ import {
   HelpCircle,
 } from 'lucide-react';
 import AppLayout from '../components/layout/AppLayout';
+import WardrobeImage from '../components/common/WardrobeImage';
 import { getInsightsSummaryApi } from '../api/insights';
 
 const CATEGORY_COLORS = {
@@ -238,11 +239,14 @@ export default function InsightsPage() {
                             #{index + 1}
                           </span>
                           <div className="w-12 h-12 rounded-xl bg-white overflow-hidden shrink-0 border border-[var(--color-aura-border)] flex items-center justify-center">
-                            {item.image_url ? (
-                              <img src={item.image_url} alt={item.name} className="w-full h-full object-cover" />
-                            ) : (
-                              <Shirt className="w-5 h-5 text-[var(--color-aura-muted)]" />
-                            )}
+                            <WardrobeImage
+                              src={item.image_url}
+                              alt={item.name}
+                              category={item.category}
+                              className="w-full h-full object-cover"
+                              fallbackClassName="flex items-center justify-center text-[var(--color-aura-muted)] p-1 w-full h-full"
+                              iconSize="w-5 h-5"
+                            />
                           </div>
                           <div className="min-w-0">
                             <h4 className="text-xs font-bold text-[var(--color-aura-text)] truncate font-[var(--font-heading)] group-hover:text-[var(--color-aura-primary)] transition-colors">
@@ -292,11 +296,14 @@ export default function InsightsPage() {
                       >
                         <div className="flex items-center space-x-3 min-w-0">
                           <div className="w-12 h-12 rounded-xl bg-white overflow-hidden shrink-0 border border-[var(--color-aura-border)] flex items-center justify-center">
-                            {item.image_url ? (
-                              <img src={item.image_url} alt={item.name} className="w-full h-full object-cover" />
-                            ) : (
-                              <Shirt className="w-5 h-5 text-[var(--color-aura-muted)]" />
-                            )}
+                            <WardrobeImage
+                              src={item.image_url}
+                              alt={item.name}
+                              category={item.category}
+                              className="w-full h-full object-cover"
+                              fallbackClassName="flex items-center justify-center text-[var(--color-aura-muted)] p-1 w-full h-full"
+                              iconSize="w-5 h-5"
+                            />
                           </div>
                           <div className="min-w-0">
                             <h4 className="text-xs font-bold text-[var(--color-aura-text)] truncate font-[var(--font-heading)]">

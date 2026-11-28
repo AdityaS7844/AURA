@@ -1,10 +1,17 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { UploadCloud, Image as ImageIcon, X, AlertCircle } from 'lucide-react';
+import { getImageUrl } from '../../utils/image';
 
 export default function ImageUploader({ currentImageUrl, onFileSelect, onRemove }) {
-  const [preview, setPreview] = useState(currentImageUrl || null);
+  const [preview, setPreview] = useState(getImageUrl(currentImageUrl) || null);
   const [error, setError] = useState('');
   const fileInputRef = useRef(null);
+
+  useEffect(() => {
+    if (currentImageUrl) {
+      setPreview(getImageUrl(currentImageUrl));
+    }
+  }, [currentImageUrl]);
 
   const handleFile = (file) => {
     setError('');

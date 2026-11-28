@@ -1,6 +1,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { Shirt, Flame, Award, Eye } from 'lucide-react';
+import WardrobeImage from '../common/WardrobeImage';
 
 const CATEGORY_COLORS = {
   top: 'bg-blue-50 text-blue-700 border-blue-200',
@@ -19,21 +20,12 @@ export default function ClothingCard({ item }) {
     >
       {/* Image Container */}
       <div className="relative h-60 w-full bg-[var(--color-aura-page)] overflow-hidden flex items-center justify-center">
-        {item.image_url ? (
-          <img
-            src={item.image_url}
-            alt={item.name}
-            loading="lazy"
-            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-          />
-        ) : (
-          <div className="flex flex-col items-center justify-center text-[var(--color-aura-muted)] p-6 text-center">
-            <div className="w-14 h-14 rounded-2xl bg-[var(--color-aura-lavender)] text-[var(--color-aura-primary)] flex items-center justify-center mb-2 group-hover:scale-110 transition-transform">
-              <Shirt className="w-7 h-7" />
-            </div>
-            <span className="text-[11px] font-medium uppercase tracking-wider capitalize">{item.category}</span>
-          </div>
-        )}
+        <WardrobeImage
+          src={item.image_url}
+          alt={item.name}
+          category={item.category}
+          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+        />
 
         {/* Category Pill Tag */}
         <span

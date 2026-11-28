@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Sparkles, Shirt, Eye, ThumbsUp, ThumbsDown, Bookmark, Check, CalendarCheck } from 'lucide-react';
 import OutfitDetailModal from './OutfitDetailModal';
+import WardrobeImage from '../common/WardrobeImage';
 import { submitFeedbackApi } from '../../api/outfits';
 
 export default function OutfitCard({ outfit: initialOutfit, onUpdate }) {
@@ -83,21 +84,16 @@ export default function OutfitCard({ outfit: initialOutfit, onUpdate }) {
               {items.map((item) => (
                 <div
                   key={item.id}
-                  className="relative rounded-xl overflow-hidden bg-white border border-[var(--color-aura-border)] flex items-center justify-center group/item"
+                  className="relative rounded-xl overflow-hidden bg-white border border-[var(--color-aura-border)] flex items-center justify-center group/item h-full w-full"
                 >
-                  {item.image_url ? (
-                    <img
-                      src={item.image_url}
-                      alt={item.name}
-                      loading="lazy"
-                      className="w-full h-full object-cover group-hover/item:scale-105 transition-transform duration-300"
-                    />
-                  ) : (
-                    <div className="flex flex-col items-center justify-center text-[var(--color-aura-muted)] p-2 text-center">
-                      <Shirt className="w-6 h-6 mb-1 opacity-70" />
-                      <span className="text-[9px] font-bold uppercase truncate max-w-[70px]">{item.category}</span>
-                    </div>
-                  )}
+                  <WardrobeImage
+                    src={item.image_url}
+                    alt={item.name}
+                    category={item.category}
+                    className="w-full h-full object-cover group-hover/item:scale-105 transition-transform duration-300"
+                    fallbackClassName="flex flex-col items-center justify-center text-[var(--color-aura-muted)] p-2 text-center w-full h-full"
+                    iconSize="w-5 h-5"
+                  />
 
                   {/* Thumbnail Label Overlay */}
                   <span className="absolute bottom-1.5 left-1.5 right-1.5 px-1.5 py-0.5 rounded-md text-[9px] font-bold bg-black/60 text-white backdrop-blur-xs truncate text-center capitalize">

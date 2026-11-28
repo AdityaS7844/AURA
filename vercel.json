@@ -5,6 +5,14 @@
   "outputDirectory": "frontend/dist",
   "rewrites": [
     {
+      "source": "/api/v1/uploads/:path*",
+      "destination": "https://aura-backend-as4t.onrender.com/api/v1/uploads/:path*"
+    },
+    {
+      "source": "/uploads/:path*",
+      "destination": "https://aura-backend-as4t.onrender.com/uploads/:path*"
+    },
+    {
       "source": "/(.*)",
       "destination": "/index.html"
     }

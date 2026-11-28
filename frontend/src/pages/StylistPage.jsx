@@ -18,6 +18,7 @@ import {
 import AppLayout from '../components/layout/AppLayout';
 import OccasionSelector from '../components/outfit/OccasionSelector';
 import AnchorItemPickerModal from '../components/outfit/AnchorItemPickerModal';
+import WardrobeImage from '../components/common/WardrobeImage';
 import StylistLoadingSkeleton from '../components/outfit/StylistLoadingSkeleton';
 import OutfitCard from '../components/outfit/OutfitCard';
 import { suggestOutfitsApi } from '../api/outfits';
@@ -353,11 +354,14 @@ export default function StylistPage() {
                 <div className="flex items-center justify-between p-3 rounded-2xl border border-[var(--color-aura-primary)] bg-[var(--color-aura-lavender)]">
                   <div className="flex items-center space-x-3">
                     <div className="w-12 h-12 rounded-xl bg-white overflow-hidden border border-[var(--color-aura-border)] flex items-center justify-center">
-                      {anchorItem.image_url ? (
-                        <img src={anchorItem.image_url} alt={anchorItem.name} className="w-full h-full object-cover" />
-                      ) : (
-                        <Shirt className="w-6 h-6 text-[var(--color-aura-primary)]" />
-                      )}
+                      <WardrobeImage
+                        src={anchorItem.image_url}
+                        alt={anchorItem.name}
+                        category={anchorItem.category}
+                        className="w-full h-full object-cover"
+                        fallbackClassName="flex items-center justify-center text-[var(--color-aura-primary)] p-1 w-full h-full"
+                        iconSize="w-6 h-6"
+                      />
                     </div>
                     <div>
                       <p className="text-xs font-bold text-[var(--color-aura-text)]">{anchorItem.name}</p>

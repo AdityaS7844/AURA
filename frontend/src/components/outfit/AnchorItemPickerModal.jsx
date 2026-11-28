@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { X, Search, Check, Shirt, Filter } from 'lucide-react';
+import WardrobeImage from '../common/WardrobeImage';
 import { listItemsApi } from '../../api/wardrobe';
 
 export default function AnchorItemPickerModal({ isOpen, onClose, onSelect, currentSelectedId }) {
@@ -120,15 +121,14 @@ export default function AnchorItemPickerModal({ isOpen, onClose, onSelect, curre
                   >
                     {/* Image */}
                     <div className="h-32 w-full bg-[var(--color-aura-page)] relative overflow-hidden flex items-center justify-center">
-                      {item.image_url ? (
-                        <img
-                          src={item.image_url}
-                          alt={item.name}
-                          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-                        />
-                      ) : (
-                        <Shirt className="w-8 h-8 text-[var(--color-aura-muted)]" />
-                      )}
+                      <WardrobeImage
+                        src={item.image_url}
+                        alt={item.name}
+                        category={item.category}
+                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                        fallbackClassName="flex items-center justify-center text-[var(--color-aura-muted)] p-2 w-full h-full"
+                        iconSize="w-7 h-7"
+                      />
                       {isSelected && (
                         <div className="absolute top-2 right-2 w-6 h-6 rounded-full bg-[var(--color-aura-primary)] text-white flex items-center justify-center shadow-md">
                           <Check className="w-3.5 h-3.5" />

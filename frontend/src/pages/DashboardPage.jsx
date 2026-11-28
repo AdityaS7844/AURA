@@ -18,6 +18,7 @@ import {
 } from 'lucide-react';
 import AppLayout from '../components/layout/AppLayout';
 import WeatherCard from '../components/weather/WeatherCard';
+import WardrobeImage from '../components/common/WardrobeImage';
 import OutfitCard from '../components/outfit/OutfitCard';
 import { useAuth } from '../context/AuthContext';
 import { getPreferencesApi } from '../api/preferences';
@@ -310,15 +311,14 @@ export default function DashboardPage() {
                       className="group rounded-2xl border border-[var(--color-aura-border)] bg-[var(--color-aura-page)] p-3 hover:border-[var(--color-aura-primary)] hover:shadow-xs transition-all flex flex-col justify-between"
                     >
                       <div className="aspect-square w-full rounded-xl bg-white border border-[var(--color-aura-border)] overflow-hidden mb-2.5 flex items-center justify-center">
-                        {item.image_url ? (
-                          <img
-                            src={item.image_url}
-                            alt={item.name}
-                            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-200"
-                          />
-                        ) : (
-                          <Shirt className="w-8 h-8 text-[var(--color-aura-muted)]" />
-                        )}
+                        <WardrobeImage
+                          src={item.image_url}
+                          alt={item.name}
+                          category={item.category}
+                          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-200"
+                          fallbackClassName="flex items-center justify-center text-[var(--color-aura-muted)] p-2 w-full h-full"
+                          iconSize="w-6 h-6"
+                        />
                       </div>
                       <div>
                         <div className="flex items-center justify-between text-[10px] text-[var(--color-aura-muted)] mb-1">
@@ -464,11 +464,13 @@ export default function DashboardPage() {
                     >
                       <div className="flex items-center space-x-2.5 overflow-hidden">
                         <div className="w-9 h-9 rounded-lg bg-gray-100 overflow-hidden border border-gray-200 shrink-0">
-                          {item.image_url ? (
-                            <img src={item.image_url} alt={item.name} className="w-full h-full object-cover" />
-                          ) : (
-                            <Shirt className="w-4 h-4 m-auto mt-2 text-gray-400" />
-                          )}
+                          <WardrobeImage
+                            src={item.image_url}
+                            alt={item.name}
+                            className="w-full h-full object-cover"
+                            fallbackClassName="flex items-center justify-center text-gray-400 w-full h-full"
+                            iconSize="w-4 h-4"
+                          />
                         </div>
                         <div className="truncate">
                           <p className="text-xs font-semibold text-gray-900 truncate">{item.name}</p>
