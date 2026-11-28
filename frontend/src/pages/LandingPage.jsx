@@ -17,10 +17,9 @@ import {
   Layers,
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
-import { loginApi, registerApi } from '../api/auth';
 
 export default function LandingPage() {
-  const { user, login } = useAuth();
+  const { user, login, register } = useAuth();
   const navigate = useNavigate();
 
   // Tab: 'login' | 'signup'
